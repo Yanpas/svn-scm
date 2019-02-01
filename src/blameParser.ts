@@ -9,17 +9,17 @@ export async function parseSvnBlame(content: string): Promise<ISvnBlameEntry[]> 
         reject(err);
       }
       let transformed = [];
-      if (Array.isArray(result.target)) {
-        transformed = result.target;
-      } else if (typeof result.target === "object") {
-        transformed = [result.target];
+      if (Array.isArray(result.target.entry)) {
+        transformed = result.target.entry;
+      } else if (typeof result.target.entry === "object") {
+        transformed = [result.target.entry];
       }
       resolve(transformed.map((e: any): ISvnBlameEntry => {
         return {
-          author: e.author,
-          date: new Date(e.date),
-          line_number: parseInt(e.line_number, 10),
-          revision: e.revision
+          author: e.commit.author,
+          date: new Date(e.commit.date),
+          lineNumber: parseInt(e.lineNumber, 10),
+          revision: e.commit.revision
         };
       }));
     });

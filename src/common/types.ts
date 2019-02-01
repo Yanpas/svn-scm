@@ -286,6 +286,6 @@ export interface ISvnLogEntry {
 export interface ISvnBlameEntry {
   author: string;
   date: Date;
-  line_number: number;
+  lineNumber: number;
   revision: string;
 }

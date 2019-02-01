@@ -392,6 +392,11 @@
         "command": "svn.deleteUnversioned",
         "title": "Delete selected files",
         "category": "SVN"
+      },
+      {
+        "command": "svn.showBlame",
+        "title": "Show blame of current file",
+        "category": "SVN"
       }
     ],
     "menus": {

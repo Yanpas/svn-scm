@@ -545,7 +545,7 @@ export class Repository {
       "-r",
       `${rfrom}:${rto}`,
       "--xml",
-      targetPath.toString(true)
+      targetPath.fsPath
     ];
     const result = await this.exec(args);
 

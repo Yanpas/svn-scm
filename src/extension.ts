@@ -11,6 +11,7 @@ import { registerCommands } from "./commands";
 import { ConstructorPolicy } from "./common/types";
 import SvnDecorations from "./decorations/svnDecorations";
 import { configuration } from "./helpers/configuration";
+import { blameCurrentFile } from "./historyView/gutterBlame";
 import { ItemLogProvider } from "./historyView/itemLogProvider";
 import { RepoLogProvider } from "./historyView/repoLogProvider";
 import { Model } from "./model";
@@ -54,6 +55,10 @@ async function init(
   const itemLogProvider = new ItemLogProvider(model);
   disposables.push(itemLogProvider);
   window.registerTreeDataProvider("itemlog", itemLogProvider);
+
+  disposables.push(commands.registerCommand("svn.showBlame", () => {
+    blameCurrentFile(model);
+  }));
 
   // First, check the vscode has support to DecorationProvider
   if (hasSupportToDecorationProvider()) {

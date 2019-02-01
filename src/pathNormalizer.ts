@@ -4,7 +4,7 @@ import { ISvnInfo } from "./common/types";
 import { memoize } from "./decorators";
 import { SvnRI } from "./svnRI";
 
-enum ResourceKind {
+export enum ResourceKind {
   LocalRelative,
   LocalFull,
   RemoteFull
@@ -53,10 +53,7 @@ export class PathNormalizer {
       if (this.checkoutRoot === undefined) {
         throw new Error("Local paths are not");
       }
-      target = path.join(
-        this.fromRootToBranch(),
-        path.relative(this.checkoutRoot.path, fpath)
-      );
+      target = path.relative(this.checkoutRoot.fsPath, fpath);
     } else if (kind === ResourceKind.LocalRelative) {
       if (path.isAbsolute(fpath)) {
         throw new Error("Path is absolute");
