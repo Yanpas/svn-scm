@@ -34,6 +34,7 @@ import { Resource } from "./resource";
 import { SvnStatusBar } from "./statusBar";
 import { svnErrorCodes } from "./svn";
 import { Repository as BaseRepository } from "./svnRepository";
+import { SvnRI } from "./svnRI";
 import { toSvnUri } from "./uri";
 import {
   anyEvent,
@@ -866,6 +867,16 @@ export class Repository implements IRemoteRepository {
   ) {
     return this.run(Operation.Log, () =>
       this.repository.log(rfrom, rto, limit, target)
+    );
+  }
+
+  public async blame(
+    rfrom: string,
+    rto: string,
+    target: SvnRI,
+  ) {
+    return this.run(Operation.Blame, () =>
+      this.repository.blame(target, rfrom, rto)
     );
   }
 

@@ -155,6 +155,7 @@ export function timeout(ms: number) {
 
 export function isReadOnly(operation: Operation): boolean {
   switch (operation) {
+    case Operation.Blame:
     case Operation.CurrentBranch:
     case Operation.Log:
     case Operation.Show:

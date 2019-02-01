@@ -2,11 +2,13 @@ import * as fs from "fs";
 import * as path from "path";
 import * as tmp from "tmp";
 import { Uri, workspace } from "vscode";
+import { parseSvnBlame } from "./blameParser";
 import {
   ConstructorPolicy,
   ICpOptions,
   IExecutionResult,
   IFileStatus,
+  ISvnBlameEntry,
   ISvnInfo,
   ISvnLogEntry,
   Status
@@ -19,6 +21,7 @@ import { parseSvnList } from "./listParser";
 import { parseSvnLog } from "./logParser";
 import { parseStatusXml } from "./statusParser";
 import { Svn } from "./svn";
+import { SvnRI } from "./svnRI";
 import { fixPathSeparator, unwrap } from "./util";
 
 export class Repository {
@@ -511,8 +514,9 @@ export class Repository {
     rfrom: string,
     rto: string,
     limit: number,
-    target?: string | Uri
+    target?: string | Uri,
   ): Promise<ISvnLogEntry[]> {
+    // TODO log mergeinfo (-g)
     const args = [
       "log",
       "-r",
@@ -527,6 +531,25 @@ export class Repository {
     const result = await this.exec(args);
 
     return parseSvnLog(result.stdout);
+  }
+
+  public async blame(
+    target: SvnRI,
+    rfrom: string,
+    rto: string,
+  ): Promise<ISvnBlameEntry[]> {
+    // TODO blame mergeinfo (-g)
+    const targetPath = target.localFullPath || target.remoteFullPath;
+    const args = [
+      "blame",
+      "-r",
+      `${rfrom}:${rto}`,
+      "--xml",
+      targetPath.toString(true)
+    ];
+    const result = await this.exec(args);
+
+    return parseSvnBlame(result.stdout);
   }
 
   public async countNewCommit(revision: string = "BASE:HEAD") {

@@ -91,6 +91,7 @@ export enum RepositoryState {
 export enum Operation {
   Add = "Add",
   AddChangelist = "AddChangelist",
+  Blame = "Blame",
   CleanUp = "CleanUp",
   Commit = "Commit",
   CurrentBranch = "CurrentBranch",
@@ -280,4 +281,11 @@ export interface ISvnLogEntry {
   date: string;
   msg: string;
   paths: ISvnLogEntryPath[];
+}
+
+export interface ISvnBlameEntry {
+  author: string;
+  date: Date;
+  line_number: number;
+  revision: string;
 }
