@@ -32,6 +32,12 @@ export interface IConflictOption {
   description: string;
 }
 
+export interface ISvnCommit {
+  author: string;
+  date: string;
+  revision: string;
+}
+
 export interface ISvnInfo {
   kind: string;
   path: string;
@@ -46,22 +52,14 @@ export interface ISvnInfo {
     wcrootAbspath: string;
     uuid: string;
   };
-  commit: {
-    revision: string;
-    author: string;
-    date: string;
-  };
+  commit: ISvnCommit;
 }
 
 export interface ISvnListItem {
   kind: SvnKindType;
   name: string;
   size: string;
-  commit: {
-    revision: string;
-    author: string;
-    date: string;
-  };
+  commit: ISvnCommit;
 }
 
 export enum SvnKindType {
@@ -130,11 +128,7 @@ export interface IFileStatus {
   changelist?: string;
   rename?: string;
   wcStatus: IWcStatus;
-  commit?: {
-    revision: string;
-    author: string;
-    date: string;
-  };
+  commit?: ISvnCommit;
   repositoryUuid?: string;
   reposStatus?: {
     props: string;
@@ -153,11 +147,7 @@ export interface IEntry {
     movedFrom?: string;
     wcLocked?: string;
     switched?: string;
-    commit: {
-      revision: string;
-      author: string;
-      date: string;
-    };
+    commit: ISvnCommit;
   };
   reposStatus?: {
     props: string;
@@ -275,17 +265,12 @@ export interface ISvnLogEntryPath {
 }
 
 /** produced by svn log */
-export interface ISvnLogEntry {
-  revision: string;
-  author: string;
-  date: string;
+export interface ISvnLogEntry extends ISvnCommit {
   msg: string;
   paths: ISvnLogEntryPath[];
 }
 
 export interface ISvnBlameEntry {
-  author: string;
-  date: Date;
-  lineNumber: number;
-  revision: string;
+  lineNumber: string;
+  commit?: ISvnCommit;
 }

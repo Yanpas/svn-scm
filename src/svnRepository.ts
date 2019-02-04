@@ -513,7 +513,7 @@ export class Repository {
   public async log(
     rfrom: string,
     rto: string,
-    limit: number,
+    limit?: number,
     target?: string | Uri,
   ): Promise<ISvnLogEntry[]> {
     // TODO log mergeinfo (-g)
@@ -521,10 +521,12 @@ export class Repository {
       "log",
       "-r",
       `${rfrom}:${rto}`,
-      `--limit=${limit}`,
       "--xml",
       "-v"
     ];
+    if (limit !== undefined) {
+      args.push(`--limit=${limit}`);
+    }
     if (target !== undefined) {
       args.push(target instanceof Uri ? target.toString(true) : target);
     }
@@ -535,18 +537,21 @@ export class Repository {
 
   public async blame(
     target: SvnRI,
-    rfrom: string,
-    rto: string,
+    rfrom?: string,
+    rto?: string,
   ): Promise<ISvnBlameEntry[]> {
     // TODO blame mergeinfo (-g)
     const targetPath = target.localFullPath || target.remoteFullPath;
     const args = [
       "blame",
-      "-r",
-      `${rfrom}:${rto}`,
       "--xml",
       targetPath.fsPath
     ];
+    if (rfrom && rto) {
+      args.push("-r", `${rfrom}:${rto}`);
+    } else if (rfrom) {
+      args.push("-r", `${rfrom}`);
+    }
     const result = await this.exec(args);
 
     return parseSvnBlame(result.stdout);

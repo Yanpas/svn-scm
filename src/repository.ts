@@ -862,7 +862,7 @@ export class Repository implements IRemoteRepository {
   public async log(
     rfrom: string,
     rto: string,
-    limit: number,
+    limit?: number,
     target?: string | Uri
   ) {
     return this.run(Operation.Log, () =>
@@ -871,9 +871,9 @@ export class Repository implements IRemoteRepository {
   }
 
   public async blame(
-    rfrom: string,
-    rto: string,
     target: SvnRI,
+    rfrom?: string,
+    rto?: string,
   ) {
     return this.run(Operation.Blame, () =>
       this.repository.blame(target, rfrom, rto)
