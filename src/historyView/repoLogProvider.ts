@@ -386,7 +386,7 @@ export class RepoLogProvider
       ti = new TreeItem(basename, TreeItemCollapsibleState.None);
       const cached = this.getCached(element);
       const nm = cached.repo.getPathNormalizer();
-      ti.tooltip = nm.parse(pathElem._).remoteFullPath.fsPath;
+      ti.tooltip = nm.parse(pathElem._).remotePath;
       ti.iconPath = getActionIcon(pathElem.action);
       ti.contextValue = "diffable";
       ti.command = {
