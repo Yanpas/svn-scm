@@ -191,12 +191,12 @@ function md5(s: string): string {
   return data.digest().toString("hex");
 }
 
-export function getCommitIcon(
+export function getGravatarIcon(
   author: string,
   size: number = 16
-): Uri | { light: Uri; dark: Uri } {
+): Uri | undefined {
   if (!configuration.get("gravatars.enabled", true) as boolean) {
-    return getIconObject("icon-commit");
+    return undefined;
   }
 
   let gravatar = gravatarCache.get(author);
@@ -211,6 +211,13 @@ export function getCommitIcon(
   gravatarCache.set(author, gravatar);
 
   return gravatar;
+}
+
+export function getCommitIcon(
+  author: string,
+  size: number = 16
+): Uri | { light: Uri; dark: Uri } {
+  return getGravatarIcon(author, size) || getIconObject("icon-commit");
 }
 
 export function getCommitLabel(commit: ISvnLogEntry): string {
