@@ -162,6 +162,7 @@ export class ItemLogProvider
       ti = new TreeItem(getCommitLabel(commit), TreeItemCollapsibleState.None);
       ti.iconPath = getCommitIcon(commit.author);
       ti.tooltip = getCommitToolTip(commit);
+      ti.tooltip += `\nPath: ^${commit.paths[0]._}`;
       ti.contextValue = "diffable";
       ti.command = {
         command: "svn.itemlog.openDiff",
