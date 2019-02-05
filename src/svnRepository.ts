@@ -513,10 +513,10 @@ export class Repository {
   public async log(
     rfrom: string,
     rto: string,
+    useMergeInfo: boolean,
     limit?: number,
     target?: string | Uri,
   ): Promise<ISvnLogEntry[]> {
-    // TODO log mergeinfo (-g)
     const args = [
       "log",
       "-r",
@@ -526,6 +526,9 @@ export class Repository {
     ];
     if (limit !== undefined) {
       args.push(`--limit=${limit}`);
+    }
+    if (useMergeInfo) {
+      args.push("-g");
     }
     if (target !== undefined) {
       args.push(target instanceof Uri ? target.toString(true) : target);
@@ -540,13 +543,15 @@ export class Repository {
     rfrom?: string,
     rto?: string,
   ): Promise<ISvnBlameEntry[]> {
-    // TODO blame mergeinfo (-g)
     const targetPath = target.localFullPath || target.remoteFullPath;
     const args = [
       "blame",
       "--xml",
       targetPath.fsPath
     ];
+    if (configuration.get<boolean>("blame.useMergeInfo", true)) {
+      args.push("-g");
+    }
     if (rfrom && rto) {
       args.push("-r", `${rfrom}:${rto}`);
     } else if (rfrom) {

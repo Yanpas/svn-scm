@@ -12,6 +12,7 @@ export interface IRemoteRepository {
   log(
     rfrom: string,
     rto: string,
+    useMergeInfo: boolean,
     limit: number,
     target?: string | Uri
   ): Promise<ISvnLogEntry[]>;
@@ -41,10 +42,11 @@ export class RemoteRepository implements IRemoteRepository {
   public async log(
     rfrom: string,
     rto: string,
+    useMergeInfo: boolean,
     limit: number,
     target?: string | Uri
   ): Promise<ISvnLogEntry[]> {
-    return this.repo.log(rfrom, rto, limit, target);
+    return this.repo.log(rfrom, rto, useMergeInfo, limit, target);
   }
 
   public async show(

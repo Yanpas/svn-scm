@@ -139,10 +139,12 @@ export function checkIfFile(e: SvnRI, local: boolean): boolean | undefined {
   try {
     stat = fs.lstatSync(e.localFullPath.fsPath);
   } catch {
-    window.showWarningMessage(
-      "Not available from this working copy: " + e.localFullPath
-    );
-    return false;
+    if (local) {
+      window.showWarningMessage(
+        "Not available from this working copy: " + e.localFullPath
+      );
+    }
+    return undefined;
   }
   if (!stat.isFile()) {
     window.showErrorMessage("This target is not a file");
@@ -152,7 +154,7 @@ export function checkIfFile(e: SvnRI, local: boolean): boolean | undefined {
 }
 
 /// @note: cached.svnTarget should be valid
-export async function fetchMore(cached: ICachedLog) {
+export async function fetchMore(cached: ICachedLog, isFile: boolean) {
   let rfrom = cached.persisted.commitFrom;
   const entries = cached.entries;
   if (entries.length) {
@@ -161,8 +163,20 @@ export async function fetchMore(cached: ICachedLog) {
   }
   let moreCommits: ISvnLogEntry[] = [];
   const limit = getLimit();
+
+  const useMergeinfoVal = configuration.get<string>("log.useMergeInfo");
+  let useMergeinfo;
+  if (useMergeinfoVal === "neither") {
+    useMergeinfo = false;
+  } else {
+    if (isFile) {
+      useMergeinfo = useMergeinfoVal === "file" || useMergeinfoVal === "both";
+    } else {
+      useMergeinfo = useMergeinfoVal === "both";
+    }
+  }
   try {
-    moreCommits = await cached.repo.log(rfrom, "1", limit, cached.svnTarget);
+    moreCommits = await cached.repo.log(rfrom, "1", useMergeinfo, limit, cached.svnTarget);
   } catch {
     // Item didn't exist
   }

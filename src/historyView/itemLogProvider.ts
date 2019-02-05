@@ -81,25 +81,28 @@ export class ItemLogProvider
   public async openFileRemoteCmd(element: ILogTreeItem) {
     const commit = element.data as ISvnLogEntry;
     const item = unwrap(this.currentItem);
-    return openFileRemote(item.repo, item.svnTarget, commit.revision);
+    const ri = item.repo.getPathNormalizer().parse(commit.paths[0]._);
+    return openFileRemote(item.repo, ri.remoteFullPath, commit.revision);
   }
 
   public async openDiffBaseCmd(element: ILogTreeItem) {
     const commit = element.data as ISvnLogEntry;
     const item = unwrap(this.currentItem);
-    return openDiff(item.repo, item.svnTarget, commit.revision, "BASE");
+    const ri = item.repo.getPathNormalizer().parse(commit.paths[0]._);
+    return openDiff(item.repo, ri.remoteFullPath, commit.revision, "BASE");
   }
 
   public async openDiffCmd(element: ILogTreeItem) {
     const commit = element.data as ISvnLogEntry;
     const item = unwrap(this.currentItem);
+    const ri = item.repo.getPathNormalizer().parse(commit.paths[0]._);
     const pos = item.entries.findIndex(e => e === commit);
     if (pos === item.entries.length - 1) {
       window.showWarningMessage("Cannot diff last commit");
       return;
     }
     const prevRev = item.entries[pos + 1].revision;
-    return openDiff(item.repo, item.svnTarget, prevRev, commit.revision);
+    return openDiff(item.repo, ri.remoteFullPath, prevRev, commit.revision);
   }
 
   public async editorChanged(te?: TextEditor) {
@@ -113,7 +116,7 @@ export class ItemLogProvider
   ) {
     // TODO maybe make autorefresh optionable?
     if (loadMore) {
-      await fetchMore(unwrap(this.currentItem));
+      await fetchMore(unwrap(this.currentItem), true);
       this._onDidChangeTreeData.fire(element);
       return;
     }
@@ -192,7 +195,7 @@ export class ItemLogProvider
     } else {
       const entries = this.currentItem.entries;
       if (entries.length === 0) {
-        await fetchMore(this.currentItem);
+        await fetchMore(this.currentItem, true);
       }
       const result = transform(entries, LogTreeItemKind.Commit);
       insertBaseMarker(this.currentItem, entries, result);

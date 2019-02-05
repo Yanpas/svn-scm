@@ -862,11 +862,12 @@ export class Repository implements IRemoteRepository {
   public async log(
     rfrom: string,
     rto: string,
+    useMergeInfo: boolean,
     limit?: number,
     target?: string | Uri
   ) {
     return this.run(Operation.Log, () =>
-      this.repository.log(rfrom, rto, limit, target)
+      this.repository.log(rfrom, rto, useMergeInfo, limit, target)
     );
   }
 

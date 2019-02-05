@@ -268,6 +268,7 @@ export interface ISvnLogEntryPath {
 export interface ISvnLogEntry extends ISvnCommit {
   msg: string;
   paths: ISvnLogEntryPath[];
+  fromMerge?: boolean;
 }
 
 export interface ISvnBlameEntry {

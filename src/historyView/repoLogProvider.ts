@@ -286,6 +286,7 @@ export class RepoLogProvider
         const revs = await item.repo.log(
           parent.revision,
           "1",
+          true,
           2,
           nm.parse(commit._).remoteFullPath
         );
@@ -336,7 +337,7 @@ export class RepoLogProvider
     } else if (element.kind === LogTreeItemKind.Repo) {
       const cached = this.getCached(element);
       if (fetchMoreClick) {
-        await fetchMore(cached);
+        await fetchMore(cached, false);
       } else {
         cached.entries = [];
         cached.isComplete = false;
@@ -422,7 +423,7 @@ export class RepoLogProvider
       const cached = this.getCached(element);
       const logentries = cached.entries;
       if (logentries.length === 0) {
-        await fetchMore(cached);
+        await fetchMore(cached, false);
       }
       const result = transform(logentries, LogTreeItemKind.Commit, element);
       insertBaseMarker(cached, logentries, result);

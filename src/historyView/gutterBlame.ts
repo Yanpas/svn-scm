@@ -1,5 +1,6 @@
 import { Disposable, Range, TextEditor, TextEditorDecorationType, ThemeColor, Uri, window } from "vscode";
 import { ISvnBlameEntry, ISvnCommit } from "../common/types";
+import { configuration } from "../helpers/configuration";
 import { Model } from "../model";
 import { ResourceKind } from "../pathNormalizer";
 import { Repository } from "../repository";
@@ -95,7 +96,12 @@ async function getRevisionMessages(
     return new Map();
   }
   const res = new Map<number, string>();
-  const logentries = await repo.log(rmin.toString(), rmax.toString(), undefined, target.fsPath);
+  const logentries = await repo.log(
+    rmin.toString(),
+    rmax.toString(),
+    configuration.get<boolean>("blame.useMergeInfo", true),
+    undefined,
+    target.fsPath);
   for (const le of logentries) {
     res.set(parseInt(le.revision, 10), le.msg);
   }

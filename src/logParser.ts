@@ -14,7 +14,23 @@ export async function parseSvnLog(content: string): Promise<ISvnLogEntry[]> {
       } else if (typeof result.logentry === "object") {
         transformed = [result.logentry];
       }
+      const allEntries = [];
       for (const logentry of transformed) {
+        allEntries.push(logentry);
+        // merge info
+        if (logentry.logentry) {
+          let subentries = logentry.logentry;
+          delete logentry.logentry;
+          if (!Array.isArray(subentries)) {
+            subentries = [subentries];
+          }
+          subentries.forEach((element: ISvnLogEntry) => {
+            element.fromMerge = true;
+          });
+          allEntries.push(... subentries);
+        }
+      }
+      for (const logentry of allEntries) {
         if (logentry.paths === undefined) {
           logentry.paths = [];
         } else if (Array.isArray(logentry.paths.path)) {
@@ -23,7 +39,7 @@ export async function parseSvnLog(content: string): Promise<ISvnLogEntry[]> {
           logentry.paths = [logentry.paths.path];
         }
       }
-      resolve(transformed);
+      resolve(allEntries);
     });
   });
 }
