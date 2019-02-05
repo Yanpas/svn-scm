@@ -18,6 +18,7 @@ import { dispose, unwrap } from "../util";
 import {
   copyCommitToClipboard,
   fetchMore,
+  getCommitDescription,
   getCommitIcon,
   getCommitLabel,
   getCommitToolTip,
@@ -160,6 +161,7 @@ export class ItemLogProvider
       const cached = unwrap(this.currentItem);
       const commit = element.data as ISvnLogEntry;
       ti = new TreeItem(getCommitLabel(commit), TreeItemCollapsibleState.None);
+      (ti as any).description = getCommitDescription(commit);
       ti.iconPath = getCommitIcon(commit.author);
       ti.tooltip = getCommitToolTip(commit);
       ti.tooltip += `\nPath: ^${commit.paths[0]._}`;

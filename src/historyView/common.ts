@@ -1,4 +1,5 @@
 import { createHash } from "crypto";
+import { distanceInWordsToNow } from "date-fns";
 import * as fs from "fs";
 import * as path from "path";
 import {
@@ -236,7 +237,11 @@ export function getCommitIcon(
 
 export function getCommitLabel(commit: ISvnLogEntry): string {
   const fstLine = commit.msg.split(/\r?\n/, 1)[0];
-  return `${fstLine} • r${commit.revision}`;
+  return fstLine;
+}
+
+export function getCommitDescription(commit: ISvnLogEntry): string {
+  return `r${commit.revision}, ${distanceInWordsToNow(commit.date, {addSuffix: true})}`;
 }
 
 export function getCommitToolTip(commit: ISvnLogEntry): string {

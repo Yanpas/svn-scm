@@ -25,6 +25,7 @@ import {
   checkIfFile,
   copyCommitToClipboard,
   fetchMore,
+  getCommitDescription,
   getCommitIcon,
   getCommitLabel,
   getCommitToolTip,
@@ -374,6 +375,7 @@ export class RepoLogProvider
         getCommitLabel(commit),
         TreeItemCollapsibleState.Collapsed
       );
+      (ti as any).description = getCommitDescription(commit);
       ti.tooltip = getCommitToolTip(commit);
       ti.iconPath = getCommitIcon(commit.author);
       ti.contextValue = "commit";
