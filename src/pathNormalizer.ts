@@ -54,6 +54,7 @@ export class PathNormalizer {
         throw new Error("Local paths are not");
       }
       target = path.relative(this.checkoutRoot.fsPath, fpath);
+      target = path.join(this.fromRootToBranch() , target);
     } else if (kind === ResourceKind.LocalRelative) {
       if (path.isAbsolute(fpath)) {
         throw new Error("Path is absolute");

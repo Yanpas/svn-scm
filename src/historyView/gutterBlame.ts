@@ -1,5 +1,15 @@
-import { Disposable, Range, TextEditor, TextEditorDecorationType, ThemeColor, Uri, window } from "vscode";
-import { ISvnBlameEntry, ISvnCommit } from "../common/types";
+import { distanceInWordsToNow } from "date-fns";
+import {
+  Disposable,
+  MarkdownString,
+  Range,
+  TextEditor,
+  TextEditorDecorationType,
+  ThemeColor,
+  Uri,
+  window
+} from "vscode";
+import { ISvnBlameEntry } from "../common/types";
 import { configuration } from "../helpers/configuration";
 import { Model } from "../model";
 import { ResourceKind } from "../pathNormalizer";
@@ -123,26 +133,38 @@ export class GutterBlame implements Disposable {
     this.selectionDecorations.forEach(e => e.dispose());
   }
 
-  private getGutterDecoration(isFirstLine: boolean, blame: IBlameRange) {
+  private getGutterDecoration(
+    isFirstLine: boolean, blame: IBlameRange
+  ): [TextEditorDecorationType, MarkdownString] {
     let message = "";
+    let revision = "";
     let icon;
-    if (isFirstLine) {
-      if (blame.commit) {
-        message = this.msgs.get(blame.commit.revision) || `Revision ${blame.commit.revision}`;
+    if (blame.commit) {
+      message = this.msgs.get(blame.commit.revision) || `Revision ${blame.commit.revision}`;
+      if (isFirstLine) {
         icon = getGravatarIcon(blame.commit.author);
-      } else {
-        message = "Uncommited changes";
-        // TODO add some icon
       }
+      revision = `r${blame.commit.revision}`;
+    } else {
+      message = "Uncommited changes";
+      revision = "Working copy";
+      // TODO add some icon
     }
-    return window.createTextEditorDecorationType({
+    let contentText = " ".repeat(60);
+    if (isFirstLine) {
+      const distS = blame.commit ? distanceInWordsToNow(blame.commit.date) : "";
+      const distSS = distS.substr(0, 25);
+      const messageSS = message.substr(0, 30);
+      contentText = messageSS + "\xa0".repeat(60 - messageSS.length - distSS.length) + distSS;
+    }
+    const decor = window.createTextEditorDecorationType({
       gutterIconPath: icon,
       before: {
-        contentText: message,
+        contentText,
         backgroundColor: new ThemeColor("editor.selectionHighlightBackground"),
         height: "100%",
         margin: "0 26px -1px 0",
-        width: "200px",
+        width: "60ch",
         textDecoration: "overline solid rgba(0, 0, 0, .2)",
         fontStyle: "none",
       },
@@ -151,6 +173,8 @@ export class GutterBlame implements Disposable {
       fontStyle: "none",
       textDecoration: "overline solid rgba(0, 0, 0, .2)",
     });
+    const md = new MarkdownString(`${message}\n\n${revision}`);
+    return [decor, md];
   }
 
   private getSelectionDecoration(): Array<[TextEditorDecorationType, number]> {
@@ -218,8 +242,11 @@ export class GutterBlame implements Disposable {
 
     for (const blame of this.blames) {
       for (let ln = blame.lineStart; ln < blame.lineEnd; ++ln) {
-        const decor = this.getGutterDecoration(ln === blame.lineStart, blame);
-        this.editor.setDecorations(decor, [new Range(ln, 0, ln, 0)]);
+        const [decor, md] = this.getGutterDecoration(ln === blame.lineStart, blame);
+        this.editor.setDecorations(decor, [{
+          range: new Range(ln, 0, ln, 0),
+          hoverMessage: md,
+        }]);
       }
     }
 
