@@ -13,6 +13,8 @@ import {
 } from "vscode";
 import { ISvnLogEntry, Status } from "../common/types";
 import { Model } from "../model";
+import { PathNormalizer } from "../pathNormalizer";
+import { SvnRI } from "../svnRI";
 import { tempdir } from "../tempFiles";
 import { dispose, unwrap } from "../util";
 import {
@@ -32,6 +34,31 @@ import {
   openFileRemote,
   transform
 } from "./common";
+
+function findSimilarPath(wcRemoteUri: Uri, commit: ISvnLogEntry, pn: PathNormalizer): SvnRI {
+  if (commit.paths.length === 0) {
+    throw new Error(`Commit ${commit.revision} doesn't contain paths`);
+  }
+  let maxSimLevel = 0;
+  let fullPath = commit.paths[0]._;
+  const wcComponents = wcRemoteUri.fsPath.split("/").reverse();
+  for (const path of commit.paths) {
+    const pComponents = path._.split("/").reverse();
+    let pSimLevel = 0;
+    for (let i = 0; i < pComponents.length && i < wcComponents.length; ++i) {
+      if (pComponents[i] === wcComponents[i]) {
+        pSimLevel++;
+      } else {
+        break;
+      }
+    }
+    if (pSimLevel > maxSimLevel) {
+      maxSimLevel = pSimLevel;
+      fullPath = path._;
+    }
+  }
+  return pn.parse(fullPath);
+}
 
 export class ItemLogProvider
   implements TreeDataProvider<ILogTreeItem>, Disposable {
@@ -82,24 +109,23 @@ export class ItemLogProvider
   public async openFileRemoteCmd(element: ILogTreeItem) {
     const commit = element.data as ISvnLogEntry;
     const item = unwrap(this.currentItem);
-    const ri = item.repo.getPathNormalizer().parse(commit.paths[0]._);
+    const ri = findSimilarPath(item.svnTarget, commit, item.repo.getPathNormalizer());
     return openFileRemote(item.repo, ri.remoteFullPath, commit.revision);
   }
 
   public async openDiffBaseCmd(element: ILogTreeItem) {
     const commit = element.data as ISvnLogEntry;
     const item = unwrap(this.currentItem);
-    const ri = item.repo.getPathNormalizer().parse(commit.paths[0]._);
+    const ri = findSimilarPath(item.svnTarget, commit, item.repo.getPathNormalizer());
     return openDiff(item.repo, ri.remoteFullPath, commit.revision, "BASE");
   }
 
   public async openDiffCmd(element: ILogTreeItem) {
     const commit = element.data as ISvnLogEntry;
     const item = unwrap(this.currentItem);
-    const ri = item.repo.getPathNormalizer().parse(commit.paths[0]._);
+    const ri = findSimilarPath(item.svnTarget, commit, item.repo.getPathNormalizer());
     // We are using commit.paths instead of svnTarget since history may contain other branches.
     // FIXME On the other hand branch merge diffs do not work for individual files (path is ^/trunk e.g.)
-    // FIXME paths[0] is inappropriate
     // TODO add some heuristicts
     // TODO trace algorithm which follows branches ("copyfrom-path") and renames
     // TODO shell script that creates complex repo
@@ -170,7 +196,8 @@ export class ItemLogProvider
       (ti as any).description = getCommitDescription(commit);
       ti.iconPath = getCommitIcon(commit.author);
       ti.tooltip = getCommitToolTip(commit);
-      ti.tooltip += `\nPath: ^${commit.paths[0]._}`; // TODO do it inside function
+      const path = findSimilarPath(cached.svnTarget, commit, cached.repo.getPathNormalizer());
+      ti.tooltip += `\nPath: ^${path.remotePath}`; // TODO do it inside function
       ti.contextValue = "diffable";
       ti.command = {
         command: "svn.itemlog.openDiff",
