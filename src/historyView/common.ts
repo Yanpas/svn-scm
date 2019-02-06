@@ -236,7 +236,11 @@ export function getCommitIcon(
 }
 
 export function getCommitLabel(commit: ISvnLogEntry): string {
-  const fstLine = commit.msg.split(/\r?\n/, 1)[0];
+  let fstLine = commit.msg.split(/\r?\n/, 1)[0];
+  const maxChars = 40;
+  if (fstLine.length > maxChars) {
+    fstLine = `${fstLine.substr(0, maxChars)}...`;
+  }
   return fstLine;
 }
 
