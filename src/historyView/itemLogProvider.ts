@@ -223,6 +223,9 @@ export class ItemLogProvider
       const ti = new TreeItem(fname, TreeItemCollapsibleState.Expanded);
       ti.tooltip = path.dirname(this.currentItem.svnTarget.fsPath);
       ti.iconPath = getIconObject("icon-history");
+      if (this.currentItem.persisted.baseRevision !== undefined) {
+        (ti as any).description = `r${this.currentItem.persisted.baseRevision}`;
+      }
       const item = {
         kind: LogTreeItemKind.TItem,
         data: ti
