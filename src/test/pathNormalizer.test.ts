@@ -52,5 +52,7 @@ suite("Url parsing", () => {
       throw new Error("impossible");
     }
     assert.equal(x1.localFullPath.toString(), "file:///home/d1/f1");
+    const x2 = nm1.parse("/branches/features/F1/dir/file.c");
+    assert.equal(x2.localFullPath!.toString(), "file:///home/user/dev/mypero/dir/file.c");
   });
 });
