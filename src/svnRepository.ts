@@ -533,7 +533,14 @@ export class Repository {
     if (target !== undefined) {
       args.push(target instanceof Uri ? target.toString(true) : target);
     }
+    const timeStart = new Date().getSeconds();
     const result = await this.exec(args);
+    const timeEnd = new Date().getSeconds();
+    if (useMergeInfo && timeEnd - timeStart > 5) {
+      this.svn.onOutput.emit("log",
+          `svn log was executing for ${timeEnd - timeStart}.` +
+          ` Consider disabling svn.log.useMergeInfo`);
+    }
 
     return parseSvnLog(result.stdout);
   }
@@ -549,7 +556,7 @@ export class Repository {
       "--xml",
       targetPath.fsPath
     ];
-    if (configuration.get<boolean>("blame.useMergeInfo", true)) {
+    if (configuration.get<boolean>("blame.useMergeInfo", false)) {
       args.push("-g");
     }
     if (rfrom && rto) {

@@ -287,7 +287,7 @@ export class RepoLogProvider
         const revs = await item.repo.log(
           parent.revision,
           "1",
-          true,
+          false,
           2,
           nm.parse(commit._).remoteFullPath
         );

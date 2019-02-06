@@ -1001,12 +1001,12 @@
             "neither"
           ],
           "description": "Use mergeinfo (-g) in log commands for both repository and file history, only file history or neither",
-          "default": "file"
+          "default": "neither"
         },
         "svn.blame.useMergeInfo": {
           "type": "boolean",
           "description": "Use mergeinfo (-g) in blame commands",
-          "default": true
+          "default": false
         },
         "svn.showOutput": {
           "type": "boolean",
