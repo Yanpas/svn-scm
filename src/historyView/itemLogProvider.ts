@@ -97,6 +97,12 @@ export class ItemLogProvider
     const commit = element.data as ISvnLogEntry;
     const item = unwrap(this.currentItem);
     const ri = item.repo.getPathNormalizer().parse(commit.paths[0]._);
+    // We are using commit.paths instead of svnTarget since history may contain other branches.
+    // FIXME On the other hand branch merge diffs do not work for individual files (path is ^/trunk e.g.)
+    // FIXME paths[0] is inappropriate
+    // TODO add some heuristicts
+    // TODO trace algorithm which follows branches ("copyfrom-path") and renames
+    // TODO shell script that creates complex repo
     const pos = item.entries.findIndex(e => e === commit);
     if (pos === item.entries.length - 1) {
       window.showWarningMessage("Cannot diff last commit");
@@ -164,7 +170,7 @@ export class ItemLogProvider
       (ti as any).description = getCommitDescription(commit);
       ti.iconPath = getCommitIcon(commit.author);
       ti.tooltip = getCommitToolTip(commit);
-      ti.tooltip += `\nPath: ^${commit.paths[0]._}`;
+      ti.tooltip += `\nPath: ^${commit.paths[0]._}`; // TODO do it inside function
       ti.contextValue = "diffable";
       ti.command = {
         command: "svn.itemlog.openDiff",
