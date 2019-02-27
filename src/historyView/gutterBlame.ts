@@ -173,8 +173,12 @@ export class GutterBlame implements Disposable {
       fontStyle: "none",
       textDecoration: "overline solid rgba(0, 0, 0, .2)",
     });
-    const md = new MarkdownString(`${message}\n\n${revision}`);
-    return [decor, md];
+    const mdlines = [message, revision];
+    if (blame.commit) {
+      mdlines.push(`Author: ${blame.commit.author}`);
+      mdlines.push(`Date: ${blame.commit.date}`);
+    }
+    return [decor, new MarkdownString(mdlines.join("\n\n"))];
   }
 
   private getSelectionDecoration(): Array<[TextEditorDecorationType, number]> {
