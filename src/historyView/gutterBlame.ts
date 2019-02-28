@@ -16,7 +16,18 @@ import { ResourceKind } from "../pathNormalizer";
 import { Repository } from "../repository";
 import { getGravatarIcon } from "./common";
 
+let prevGutter: GutterBlame | undefined;
+let editorChanged: Disposable | undefined;
+
 export function blameCurrentFile(model: Model) {
+  if (!editorChanged) {
+    editorChanged = window.onDidChangeActiveTextEditor(() => {
+      if (prevGutter) {
+        prevGutter.dispose();
+        prevGutter = undefined;
+      }
+    });
+  }
   if (!window.activeTextEditor) {
     return;
   }
@@ -28,8 +39,11 @@ export function blameCurrentFile(model: Model) {
     return;
   }
 
-  const gutter = new GutterBlame(uri, repo, window.activeTextEditor);
-  gutter.decorate();
+  if (prevGutter) {
+    prevGutter.dispose();
+  }
+  prevGutter = new GutterBlame(uri, repo, window.activeTextEditor);
+  prevGutter.decorate();
 }
 
 interface IBlameRange {
@@ -121,7 +135,9 @@ async function getRevisionMessages(
 export class GutterBlame implements Disposable {
   private msgs = new Map<number, string>();
   private blames = new Array<IBlameRange>();
-  private selectionDecorations = new Array<TextEditorDecorationType>();
+  private textDecorations = new Array<Disposable>();
+  private selectionDecorations = new Array<Disposable>();
+  private selectionEvent?: Disposable;
 
   constructor(
     private fileUri: Uri,
@@ -130,7 +146,11 @@ export class GutterBlame implements Disposable {
   ) {}
 
   public dispose() {
+    this.textDecorations.forEach(e => e.dispose());
     this.selectionDecorations.forEach(e => e.dispose());
+    if (this.selectionEvent) {
+      this.selectionEvent.dispose();
+    }
   }
 
   private getGutterDecoration(
@@ -241,12 +261,17 @@ export class GutterBlame implements Disposable {
       const [rmin, rmax] = commitRange(this.blames);
       this.msgs = await getRevisionMessages(this.repo, rmin, rmax, this.fileUri);
 
-      window.onDidChangeTextEditorSelection(this.onSelectionChanged, this, undefined); // todo
+      if (this.selectionEvent) {
+        this.selectionEvent.dispose();
+      }
+      this.selectionEvent = window.onDidChangeTextEditorSelection(this.onSelectionChanged, this, undefined);
     }
 
     for (const blame of this.blames) {
+      // TODO research performance, separate decoration on each line is heavy?
       for (let ln = blame.lineStart; ln < blame.lineEnd; ++ln) {
         const [decor, md] = this.getGutterDecoration(ln === blame.lineStart, blame);
+        this.textDecorations.push(decor);
         this.editor.setDecorations(decor, [{
           range: new Range(ln, 0, ln, 0),
           hoverMessage: md,
