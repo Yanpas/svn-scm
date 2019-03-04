@@ -530,14 +530,15 @@ export class Repository {
 
   public async blame(
     target: SvnRI,
+    local: boolean,
     rfrom?: string,
     rto?: string,
   ): Promise<ISvnBlameEntry[]> {
-    const targetPath = target.localFullPath || target.remoteFullPath;
+    const targetPath = local ? unwrap(target.localFullPath).fsPath : target.toString(true);
     const args = [
       "blame",
       "--xml",
-      targetPath.fsPath
+      targetPath
     ];
     if (configuration.get<boolean>("blame.useMergeInfo", false)) {
       args.push("-g");

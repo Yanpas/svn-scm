@@ -885,11 +885,12 @@ export class Repository implements IRemoteRepository {
 
   public async blame(
     target: SvnRI,
+    local: boolean,
     rfrom?: string,
     rto?: string,
   ) {
     return this.run(Operation.Blame, () =>
-      this.repository.blame(target, rfrom, rto)
+      this.repository.blame(target, local, rfrom, rto)
     );
   }
 

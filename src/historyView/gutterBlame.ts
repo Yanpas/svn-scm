@@ -15,6 +15,7 @@ import { Model } from "../model";
 import { ResourceKind } from "../pathNormalizer";
 import { Repository } from "../repository";
 import { getGravatarIcon } from "./common";
+import { SvnRI } from "../svnRI";
 
 let prevGutter: GutterBlame | undefined;
 let editorChanged: Disposable | undefined;
@@ -114,7 +115,7 @@ async function getRevisionMessages(
   repo: Repository,
   rmin: number,
   rmax: number,
-  target: Uri
+  target: SvnRI
   ): Promise<Map<number, string>> {
   if (rmin === -1 && rmax === -1) {
     return new Map();
@@ -125,7 +126,8 @@ async function getRevisionMessages(
     rmax.toString(),
     configuration.get<boolean>("blame.useMergeInfo", true),
     undefined,
-    target.fsPath);
+    target.toString(false),
+    ResourceKind.RemoteFull);
   for (const le of logentries) {
     res.set(parseInt(le.revision, 10), le.msg);
   }
@@ -247,7 +249,7 @@ export class GutterBlame implements Disposable {
       // init fielfds of class
       let svnBlames;
       try {
-        svnBlames = await this.repo.blame(svnri);
+        svnBlames = await this.repo.blame(svnri, true);
       } catch (e) {
         window.showErrorMessage("Failed to get blame for this file");
         console.error(`blame: ${e.message}`);
@@ -259,7 +261,7 @@ export class GutterBlame implements Disposable {
 
       this.blames = transformBlames(svnBlames);
       const [rmin, rmax] = commitRange(this.blames);
-      this.msgs = await getRevisionMessages(this.repo, rmin, rmax, this.fileUri);
+      this.msgs = await getRevisionMessages(this.repo, rmin, rmax, svnri);
 
       if (this.selectionEvent) {
         this.selectionEvent.dispose();
