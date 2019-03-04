@@ -12,6 +12,7 @@ import {
 } from "vscode";
 import { ISvnLogEntry, ISvnLogEntryPath } from "../common/types";
 import { configuration } from "../helpers/configuration";
+import { ResourceKind } from "../pathNormalizer";
 import { IRemoteRepository } from "../remoteRepository";
 import { SvnRI } from "../svnRI";
 import { dumpSvnFile } from "../tempFiles";
@@ -279,7 +280,7 @@ async function downloadFile(
   }
   let out;
   try {
-    out = await repo.show(arg, revision);
+    out = await repo.show(arg, ResourceKind.RemoteFull, revision);
   } catch (e) {
     window.showErrorMessage("Failed to open path");
     throw e;
@@ -309,7 +310,7 @@ export async function openFileRemote(
 ) {
   let out;
   try {
-    out = await repo.show(arg, against);
+    out = await repo.show(arg, ResourceKind.RemoteFull, against);
   } catch {
     window.showErrorMessage("Failed to open path");
     return;
