@@ -14,8 +14,8 @@ import { configuration } from "../helpers/configuration";
 import { Model } from "../model";
 import { ResourceKind } from "../pathNormalizer";
 import { Repository } from "../repository";
-import { getGravatarIcon } from "./common";
 import { SvnRI } from "../svnRI";
+import { getGravatarIcon } from "./common";
 
 let prevGutter: GutterBlame | undefined;
 let editorChanged: Disposable | undefined;
@@ -115,8 +115,9 @@ async function getRevisionMessages(
   repo: Repository,
   rmin: number,
   rmax: number,
-  target: SvnRI
-  ): Promise<Map<number, string>> {
+  target: SvnRI,
+  isLocal: boolean
+): Promise<Map<number, string>> {
   if (rmin === -1 && rmax === -1) {
     return new Map();
   }
@@ -126,8 +127,12 @@ async function getRevisionMessages(
     rmax.toString(),
     configuration.get<boolean>("blame.useMergeInfo", true),
     undefined,
-    target.toString(false),
-    ResourceKind.RemoteFull);
+    {
+      isLocal,
+      path: target.toString(false),
+      rscKind: ResourceKind.RemoteFull
+    }
+  );
   for (const le of logentries) {
     res.set(parseInt(le.revision, 10), le.msg);
   }
@@ -261,7 +266,7 @@ export class GutterBlame implements Disposable {
 
       this.blames = transformBlames(svnBlames);
       const [rmin, rmax] = commitRange(this.blames);
-      this.msgs = await getRevisionMessages(this.repo, rmin, rmax, svnri);
+      this.msgs = await getRevisionMessages(this.repo, rmin, rmax, svnri, true);
 
       if (this.selectionEvent) {
         this.selectionEvent.dispose();

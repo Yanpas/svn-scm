@@ -29,7 +29,7 @@ import { debounce, memoize, throttle } from "./decorators";
 import { configuration } from "./helpers/configuration";
 import OperationsImpl from "./operationsImpl";
 import { PathNormalizer, ResourceKind } from "./pathNormalizer";
-import { IRemoteRepository } from "./remoteRepository";
+import { IRemoteRepository, ITarget } from "./remoteRepository";
 import { Resource } from "./resource";
 import { SvnStatusBar } from "./statusBar";
 import { svnErrorCodes } from "./svn";
@@ -754,15 +754,14 @@ export class Repository implements IRemoteRepository {
   }
 
   public async show(
-    filePath: string | Uri,
-    rscKind: ResourceKind,
+    target: ITarget,
     revision?: string
   ): Promise<string> {
     const pn = this.getPathNormalizer();
     return this.run<string>(Operation.Show, () => {
       return this.repository.show(
-        pn.parse(filePath.toString(true), rscKind, revision),
-        rscKind !== ResourceKind.RemoteFull,
+        pn.parse(target.path.toString(true), target.rscKind, target.revision),
+        target.isLocal,
         revision
       );
     });
@@ -870,27 +869,27 @@ export class Repository implements IRemoteRepository {
     rto: string,
     useMergeInfo: boolean,
     limit?: number,
-    target?: string | Uri,
-    rscKind?: ResourceKind
+    target?: ITarget,
+    isLocal?: boolean
   ) {
     const pn = this.getPathNormalizer();
     let ri: SvnRI | undefined;
     if (target !== undefined) {
-      ri = pn.parse(target.toString(true), rscKind, rfrom);
+      ri = pn.parse(target.path.toString(true), target.rscKind, target.revision);
     }
     return this.run(Operation.Log, () =>
-      this.repository.log(rfrom, rto, useMergeInfo, limit, ri)
+      this.repository.log(rfrom, rto, useMergeInfo, limit, ri, isLocal)
     );
   }
 
   public async blame(
     target: SvnRI,
-    local: boolean,
+    isLocal: boolean,
     rfrom?: string,
     rto?: string,
   ) {
     return this.run(Operation.Blame, () =>
-      this.repository.blame(target, local, rfrom, rto)
+      this.repository.blame(target, isLocal, rfrom, rto)
     );
   }
 

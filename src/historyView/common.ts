@@ -178,8 +178,12 @@ export async function fetchMore(cached: ICachedLog, isFile: boolean) {
     }
   }
   try {
-    moreCommits = await cached.repo.log(rfrom, "1", useMergeinfo, limit, cached.svnTarget);
-  } catch {
+        moreCommits = await cached.repo.log(rfrom, "1", useMergeinfo, limit, {
+          path: cached.svnTarget,
+          isLocal: false,
+          rscKind: ResourceKind.RemoteFull
+        });
+      } catch {
     // Item didn't exist
   }
   if (!needFetch(entries, moreCommits, limit)) {
@@ -280,7 +284,12 @@ async function downloadFile(
   }
   let out;
   try {
-    out = await repo.show(arg, ResourceKind.RemoteFull, revision);
+    out = await repo.show({
+      path: arg,
+      rscKind: ResourceKind.RemoteFull,
+      revision,
+      isLocal: false
+    });
   } catch (e) {
     window.showErrorMessage("Failed to open path");
     throw e;
@@ -310,7 +319,12 @@ export async function openFileRemote(
 ) {
   let out;
   try {
-    out = await repo.show(arg, ResourceKind.RemoteFull, against);
+    out = await repo.show({
+      path: arg,
+      rscKind: ResourceKind.RemoteFull,
+      revision: against,
+      isLocal: false
+    });
   } catch {
     window.showErrorMessage("Failed to open path");
     return;

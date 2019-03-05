@@ -169,15 +169,15 @@ export class Repository {
   }
 
   public async show(
-    file: SvnRI,
-    local: boolean,
+    target: SvnRI,
+    isLocal: boolean,
     revision?: string
   ): Promise<string> {
     const args = ["cat"];
-    if (local) {
-      args.push(unwrap(file.localFullPath).fsPath);
+    if (isLocal) {
+      args.push(unwrap(target.localFullPath).fsPath);
     } else {
-      args.push(file.toString(true));
+      args.push(target.toString(true));
     }
     if (revision !== undefined) {
       args.push("-r", revision);
@@ -498,7 +498,8 @@ export class Repository {
     rto: string,
     useMergeInfo: boolean,
     limit?: number,
-    target?: SvnRI
+    target?: SvnRI,
+    isLocal?: boolean
   ): Promise<ISvnLogEntry[]> {
     const args = [
       "log",
@@ -514,7 +515,7 @@ export class Repository {
       args.push("-g");
     }
     if (target !== undefined) {
-      args.push(target.toString(true));
+      args.push(isLocal ? unwrap(target.localFullPath).toString(true) : target.toString(true));
     }
     const timeStart = new Date().getSeconds();
     const result = await this.exec(args);
@@ -530,11 +531,11 @@ export class Repository {
 
   public async blame(
     target: SvnRI,
-    local: boolean,
+    isLocal: boolean,
     rfrom?: string,
     rto?: string,
   ): Promise<ISvnBlameEntry[]> {
-    const targetPath = local ? unwrap(target.localFullPath).fsPath : target.toString(true);
+    const targetPath = isLocal ? unwrap(target.localFullPath).fsPath : target.toString(true);
     const args = [
       "blame",
       "--xml",
