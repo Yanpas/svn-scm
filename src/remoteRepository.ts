@@ -23,13 +23,10 @@ export interface IRemoteRepository {
     rto: string,
     useMergeInfo: boolean,
     limit: number,
-    target?: ITarget,
+    target?: ITarget
   ): Promise<ISvnLogEntry[]>;
 
-  show(
-    target: ITarget,
-    revision?: string
-  ): Promise<string>;
+  show(target: ITarget, revision?: string): Promise<string>;
 }
 
 export class RemoteRepository implements IRemoteRepository {
@@ -57,20 +54,21 @@ export class RemoteRepository implements IRemoteRepository {
     rto: string,
     useMergeInfo: boolean,
     limit: number,
-    target?: ITarget,
+    target?: ITarget
   ): Promise<ISvnLogEntry[]> {
     const pn = this.getPathNormalizer();
     let ri: SvnRI | undefined;
     if (target !== undefined) {
-      ri = pn.parse(target.path.toString(true), target.rscKind, target.revision);
+      ri = pn.parse(
+        target.path.toString(true),
+        target.rscKind,
+        target.revision
+      );
     }
     return this.repo.log(rfrom, rto, useMergeInfo, limit, ri);
   }
 
-  public async show(
-    target: ITarget,
-    revision?: string
-  ): Promise<string> {
+  public async show(target: ITarget, revision?: string): Promise<string> {
     const pn = this.getPathNormalizer();
     return this.repo.show(
       pn.parse(target.path.toString(true), target.rscKind, revision),

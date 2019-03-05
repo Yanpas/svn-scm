@@ -81,11 +81,14 @@ function transformBlames(input: ISvnBlameEntry[]): IBlameRange[] {
     };
   };
   for (const blame of input) {
-    if (!(
-         (!lastBlame.commit && !blame.commit) ||
-         (!!lastBlame.commit && !!blame.commit &&
-            lastBlame.commit!.revision === blame.commit!.revision))
-        ) {
+    if (
+      !(
+        (!lastBlame.commit && !blame.commit) ||
+        (!!lastBlame.commit &&
+          !!blame.commit &&
+          lastBlame.commit!.revision === blame.commit!.revision)
+      )
+    ) {
       mergedBlames.push(convert(lastBlame));
       lineStart = mergedBlames[mergedBlames.length - 1].lineEnd;
     }
@@ -161,13 +164,16 @@ export class GutterBlame implements Disposable {
   }
 
   private getGutterDecoration(
-    isFirstLine: boolean, blame: IBlameRange
+    isFirstLine: boolean,
+    blame: IBlameRange
   ): [TextEditorDecorationType, MarkdownString] {
     let message = "";
     let revision = "";
     let icon;
     if (blame.commit) {
-      message = this.msgs.get(blame.commit.revision) || `Revision ${blame.commit.revision}`;
+      message =
+        this.msgs.get(blame.commit.revision) ||
+        `Revision ${blame.commit.revision}`;
       if (isFirstLine) {
         icon = getGravatarIcon(blame.commit.author);
       }
@@ -182,7 +188,10 @@ export class GutterBlame implements Disposable {
       const distS = blame.commit ? distanceInWordsToNow(blame.commit.date) : "";
       const distSS = distS.substr(0, 25);
       const messageSS = message.substr(0, 30);
-      contentText = messageSS + "\xa0".repeat(60 - messageSS.length - distSS.length) + distSS;
+      contentText =
+        messageSS +
+        "\xa0".repeat(60 - messageSS.length - distSS.length) +
+        distSS;
     }
     const decor = window.createTextEditorDecorationType({
       gutterIconPath: icon,
@@ -193,12 +202,12 @@ export class GutterBlame implements Disposable {
         margin: "0 26px -1px 0",
         width: "60ch",
         textDecoration: "overline solid rgba(0, 0, 0, .2)",
-        fontStyle: "none",
+        fontStyle: "none"
       },
       borderWidth: "0 2px 0 0",
       fontWeight: "none",
       fontStyle: "none",
-      textDecoration: "overline solid rgba(0, 0, 0, .2)",
+      textDecoration: "overline solid rgba(0, 0, 0, .2)"
     });
     const mdlines = [message, revision];
     if (blame.commit) {
@@ -222,12 +231,14 @@ export class GutterBlame implements Disposable {
     }
 
     for (const blame of this.blames) {
-      if ((!revision && !blame.commit) ||
-          blame.commit && blame.commit!.revision === revision!) {
+      if (
+        (!revision && !blame.commit) ||
+        (blame.commit && blame.commit!.revision === revision!)
+      ) {
         for (let i = blame.lineStart; i < blame.lineEnd; ++i) {
           const dec = window.createTextEditorDecorationType({
             backgroundColor: "rgba(0,50,120,15)",
-            isWholeLine: true,
+            isWholeLine: true
           });
           res.push([dec, i]);
         }
@@ -247,8 +258,9 @@ export class GutterBlame implements Disposable {
   }
 
   public async decorate() {
-    const svnri = this.repo.getPathNormalizer().parse(
-      this.fileUri.fsPath, ResourceKind.LocalFull);
+    const svnri = this.repo
+      .getPathNormalizer()
+      .parse(this.fileUri.fsPath, ResourceKind.LocalFull);
 
     if (this.blames.length === 0) {
       // init fielfds of class
@@ -271,18 +283,27 @@ export class GutterBlame implements Disposable {
       if (this.selectionEvent) {
         this.selectionEvent.dispose();
       }
-      this.selectionEvent = window.onDidChangeTextEditorSelection(this.onSelectionChanged, this, undefined);
+      this.selectionEvent = window.onDidChangeTextEditorSelection(
+        this.onSelectionChanged,
+        this,
+        undefined
+      );
     }
 
     for (const blame of this.blames) {
       // TODO research performance, separate decoration on each line is heavy?
       for (let ln = blame.lineStart; ln < blame.lineEnd; ++ln) {
-        const [decor, md] = this.getGutterDecoration(ln === blame.lineStart, blame);
+        const [decor, md] = this.getGutterDecoration(
+          ln === blame.lineStart,
+          blame
+        );
         this.textDecorations.push(decor);
-        this.editor.setDecorations(decor, [{
-          range: new Range(ln, 0, ln, 0),
-          hoverMessage: md,
-        }]);
+        this.editor.setDecorations(decor, [
+          {
+            range: new Range(ln, 0, ln, 0),
+            hoverMessage: md
+          }
+        ]);
       }
     }
 

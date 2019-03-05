@@ -35,7 +35,11 @@ import {
   transform
 } from "./common";
 
-function findSimilarPath(wcRemoteUri: Uri, commit: ISvnLogEntry, pn: PathNormalizer): SvnRI {
+function findSimilarPath(
+  wcRemoteUri: Uri,
+  commit: ISvnLogEntry,
+  pn: PathNormalizer
+): SvnRI {
   if (commit.paths.length === 0) {
     throw new Error(`Commit ${commit.revision} doesn't contain paths`);
   }
@@ -109,21 +113,33 @@ export class ItemLogProvider
   public async openFileRemoteCmd(element: ILogTreeItem) {
     const commit = element.data as ISvnLogEntry;
     const item = unwrap(this.currentItem);
-    const ri = findSimilarPath(item.svnTarget, commit, item.repo.getPathNormalizer());
+    const ri = findSimilarPath(
+      item.svnTarget,
+      commit,
+      item.repo.getPathNormalizer()
+    );
     return openFileRemote(item.repo, ri.remoteFullPath, commit.revision);
   }
 
   public async openDiffBaseCmd(element: ILogTreeItem) {
     const commit = element.data as ISvnLogEntry;
     const item = unwrap(this.currentItem);
-    const ri = findSimilarPath(item.svnTarget, commit, item.repo.getPathNormalizer());
+    const ri = findSimilarPath(
+      item.svnTarget,
+      commit,
+      item.repo.getPathNormalizer()
+    );
     return openDiff(item.repo, ri.remoteFullPath, commit.revision, "BASE");
   }
 
   public async openDiffCmd(element: ILogTreeItem) {
     const commit = element.data as ISvnLogEntry;
     const item = unwrap(this.currentItem);
-    const ri = findSimilarPath(item.svnTarget, commit, item.repo.getPathNormalizer());
+    const ri = findSimilarPath(
+      item.svnTarget,
+      commit,
+      item.repo.getPathNormalizer()
+    );
     // We are using commit.paths instead of svnTarget since history may contain other branches.
     // FIXME On the other hand branch merge diffs do not work for individual files (path is ^/trunk e.g.)
     // TODO add some heuristicts
@@ -196,7 +212,11 @@ export class ItemLogProvider
       (ti as any).description = getCommitDescription(commit);
       ti.iconPath = getCommitIcon(commit.author);
       ti.tooltip = getCommitToolTip(commit);
-      const path = findSimilarPath(cached.svnTarget, commit, cached.repo.getPathNormalizer());
+      const path = findSimilarPath(
+        cached.svnTarget,
+        commit,
+        cached.repo.getPathNormalizer()
+      );
       ti.tooltip += `\nPath: ^${path.remotePath}`; // TODO do it inside function
       ti.contextValue = "diffable";
       ti.command = {

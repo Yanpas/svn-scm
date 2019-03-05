@@ -27,7 +27,7 @@ export async function parseSvnLog(content: string): Promise<ISvnLogEntry[]> {
           subentries.forEach((element: ISvnLogEntry) => {
             element.fromMerge = true;
           });
-          allEntries.push(... subentries);
+          allEntries.push(...subentries);
         }
       }
       for (const logentry of allEntries) {

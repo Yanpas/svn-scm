@@ -501,13 +501,7 @@ export class Repository {
     target?: SvnRI,
     isLocal?: boolean
   ): Promise<ISvnLogEntry[]> {
-    const args = [
-      "log",
-      "-r",
-      `${rfrom}:${rto}`,
-      "--xml",
-      "-v"
-    ];
+    const args = ["log", "-r", `${rfrom}:${rto}`, "--xml", "-v"];
     if (limit !== undefined) {
       args.push(`--limit=${limit}`);
     }
@@ -515,15 +509,21 @@ export class Repository {
       args.push("-g");
     }
     if (target !== undefined) {
-      args.push(isLocal ? unwrap(target.localFullPath).toString(true) : target.toString(true));
+      args.push(
+        isLocal
+          ? unwrap(target.localFullPath).toString(true)
+          : target.toString(true)
+      );
     }
     const timeStart = new Date().getSeconds();
     const result = await this.exec(args);
     const timeEnd = new Date().getSeconds();
     if (useMergeInfo && timeEnd - timeStart > 5) {
-      this.svn.onOutput.emit("log",
-          `svn log was executing for ${timeEnd - timeStart}.` +
-          ` Consider disabling svn.log.useMergeInfo`);
+      this.svn.onOutput.emit(
+        "log",
+        `svn log was executing for ${timeEnd - timeStart}.` +
+          ` Consider disabling svn.log.useMergeInfo`
+      );
     }
 
     return parseSvnLog(result.stdout);
@@ -533,14 +533,12 @@ export class Repository {
     target: SvnRI,
     isLocal: boolean,
     rfrom?: string,
-    rto?: string,
+    rto?: string
   ): Promise<ISvnBlameEntry[]> {
-    const targetPath = isLocal ? unwrap(target.localFullPath).fsPath : target.toString(true);
-    const args = [
-      "blame",
-      "--xml",
-      targetPath
-    ];
+    const targetPath = isLocal
+      ? unwrap(target.localFullPath).fsPath
+      : target.toString(true);
+    const args = ["blame", "--xml", targetPath];
     if (configuration.get<boolean>("blame.useMergeInfo", false)) {
       args.push("-g");
     }

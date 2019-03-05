@@ -753,10 +753,7 @@ export class Repository implements IRemoteRepository {
     return this.run(Operation.Status);
   }
 
-  public async show(
-    target: ITarget,
-    revision?: string
-  ): Promise<string> {
+  public async show(target: ITarget, revision?: string): Promise<string> {
     const pn = this.getPathNormalizer();
     return this.run<string>(Operation.Show, () => {
       return this.repository.show(
@@ -875,7 +872,11 @@ export class Repository implements IRemoteRepository {
     const pn = this.getPathNormalizer();
     let ri: SvnRI | undefined;
     if (target !== undefined) {
-      ri = pn.parse(target.path.toString(true), target.rscKind, target.revision);
+      ri = pn.parse(
+        target.path.toString(true),
+        target.rscKind,
+        target.revision
+      );
     }
     return this.run(Operation.Log, () =>
       this.repository.log(rfrom, rto, useMergeInfo, limit, ri, isLocal)
@@ -886,7 +887,7 @@ export class Repository implements IRemoteRepository {
     target: SvnRI,
     isLocal: boolean,
     rfrom?: string,
-    rto?: string,
+    rto?: string
   ) {
     return this.run(Operation.Blame, () =>
       this.repository.blame(target, isLocal, rfrom, rto)

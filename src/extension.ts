@@ -56,9 +56,11 @@ async function init(
   disposables.push(itemLogProvider);
   window.registerTreeDataProvider("itemlog", itemLogProvider);
 
-  disposables.push(commands.registerCommand("svn.showBlame", () => {
-    blameCurrentFile(model);
-  }));
+  disposables.push(
+    commands.registerCommand("svn.showBlame", () => {
+      blameCurrentFile(model);
+    })
+  );
 
   // First, check the vscode has support to DecorationProvider
   if (hasSupportToDecorationProvider()) {

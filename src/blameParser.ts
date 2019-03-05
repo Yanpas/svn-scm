@@ -2,7 +2,9 @@ import * as xml2js from "xml2js";
 import { xml2jsParseSettings } from "./common/constants";
 import { ISvnBlameEntry } from "./common/types";
 
-export async function parseSvnBlame(content: string): Promise<ISvnBlameEntry[]> {
+export async function parseSvnBlame(
+  content: string
+): Promise<ISvnBlameEntry[]> {
   return new Promise<ISvnBlameEntry[]>((resolve, reject) => {
     xml2js.parseString(content, xml2jsParseSettings, (err, result) => {
       if (err) {

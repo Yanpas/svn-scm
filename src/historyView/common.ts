@@ -178,12 +178,12 @@ export async function fetchMore(cached: ICachedLog, isFile: boolean) {
     }
   }
   try {
-        moreCommits = await cached.repo.log(rfrom, "1", useMergeinfo, limit, {
-          path: cached.svnTarget,
-          isLocal: false,
-          rscKind: ResourceKind.RemoteFull
-        });
-      } catch {
+    moreCommits = await cached.repo.log(rfrom, "1", useMergeinfo, limit, {
+      path: cached.svnTarget,
+      isLocal: false,
+      rscKind: ResourceKind.RemoteFull
+    });
+  } catch {
     // Item didn't exist
   }
   if (!needFetch(entries, moreCommits, limit)) {
@@ -250,7 +250,9 @@ export function getCommitLabel(commit: ISvnLogEntry): string {
 }
 
 export function getCommitDescription(commit: ISvnLogEntry): string {
-  return `r${commit.revision}, ${distanceInWordsToNow(commit.date, {addSuffix: true})}`;
+  return `r${commit.revision}, ${distanceInWordsToNow(commit.date, {
+    addSuffix: true
+  })}`;
 }
 
 export function getCommitToolTip(commit: ISvnLogEntry): string {
