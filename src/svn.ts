@@ -15,6 +15,7 @@ import * as iconv from "iconv-lite";
 import isUtf8 = require("is-utf8");
 import * as jschardet from "jschardet";
 import * as proc from "process";
+import { Readable } from "stream";
 import { Uri, workspace } from "vscode";
 import {
   ConstructorPolicy,
@@ -116,7 +117,7 @@ export class Svn {
     // Force non interactive environment
     args.push("--non-interactive");
 
-    let encoding = options.encoding || "utf8";
+    let encoding = options.encoding || "";
     delete options.encoding;
 
     const defaults: cp.SpawnOptions = {
@@ -154,13 +155,13 @@ export class Svn {
       }),
       new Promise<Buffer>(resolve => {
         const buffers: Buffer[] = [];
-        on(process.stdout, "data", (b: Buffer) => buffers.push(b));
-        once(process.stdout, "close", () => resolve(Buffer.concat(buffers)));
+        on((process.stdout as Readable), "data", (b: Buffer) => buffers.push(b));
+        once((process.stdout as Readable), "close", () => resolve(Buffer.concat(buffers)));
       }),
       new Promise<string>(resolve => {
         const buffers: Buffer[] = [];
-        on(process.stderr, "data", (b: Buffer) => buffers.push(b));
-        once(process.stderr, "close", () =>
+        on((process.stderr as Readable), "data", (b: Buffer) => buffers.push(b));
+        once((process.stderr as Readable), "close", () =>
           resolve(Buffer.concat(buffers).toString())
         );
       })
@@ -171,7 +172,7 @@ export class Svn {
     // SVN with '--xml' always return 'UTF-8', and jschardet detects this encoding: 'TIS-620'
     if (args.includes("--xml")) {
       encoding = "utf8";
-    } else {
+    } else if (encoding === "") {
       const defaultEncoding = configuration.get<string>("default.encoding");
       if (defaultEncoding) {
         if (!iconv.encodingExists(defaultEncoding)) {

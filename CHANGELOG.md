@@ -1,3 +1,31 @@
+## [1.47.5](https://github.com/JohnstonCode/svn-scm/compare/v1.47.4...v1.47.5) (2019-03-16)
+
+
+### Bug Fixes
+
+* Removed sync fs calls from model ([#505](https://github.com/JohnstonCode/svn-scm/issues/505)) ([516dc22](https://github.com/JohnstonCode/svn-scm/commit/516dc22))
+
+## [1.47.4](https://github.com/JohnstonCode/svn-scm/compare/v1.47.3...v1.47.4) (2019-03-15)
+
+
+### Bug Fixes
+
+* If encoding is passed to svn.ts it uses that rather than guessing ([#499](https://github.com/JohnstonCode/svn-scm/issues/499)) ([17c5438](https://github.com/JohnstonCode/svn-scm/commit/17c5438)), closes [#483](https://github.com/JohnstonCode/svn-scm/issues/483)
+
+## [1.47.3](https://github.com/JohnstonCode/svn-scm/compare/v1.47.2...v1.47.3) (2019-03-15)
+
+
+### Bug Fixes
+
+* Make deletion modal less intrusive ([#498](https://github.com/JohnstonCode/svn-scm/issues/498)) ([1585771](https://github.com/JohnstonCode/svn-scm/commit/1585771)), closes [#487](https://github.com/JohnstonCode/svn-scm/issues/487)
+
+## [1.47.2](https://github.com/JohnstonCode/svn-scm/compare/v1.47.1...v1.47.2) (2019-03-15)
+
+
+### Bug Fixes
+
+* Fixed windows network drive issues ([#497](https://github.com/JohnstonCode/svn-scm/issues/497)) ([6a6c846](https://github.com/JohnstonCode/svn-scm/commit/6a6c846)), closes [#466](https://github.com/JohnstonCode/svn-scm/issues/466) [#451](https://github.com/JohnstonCode/svn-scm/issues/451) [#494](https://github.com/JohnstonCode/svn-scm/issues/494)
+
 ## [1.47.1](https://github.com/JohnstonCode/svn-scm/compare/v1.47.0...v1.47.1) (2019-02-12)
 
 
