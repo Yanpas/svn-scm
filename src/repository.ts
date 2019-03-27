@@ -25,13 +25,13 @@ import {
   Status,
   SvnUriAction
 } from "./common/types";
-import { debounce, memoize, throttle } from "./decorators";
+import { debounce, globalSequentialize, memoize, throttle } from "./decorators";
 import { configuration } from "./helpers/configuration";
 import OperationsImpl from "./operationsImpl";
 import { PathNormalizer, ResourceKind } from "./pathNormalizer";
 import { IRemoteRepository, ITarget } from "./remoteRepository";
 import { Resource } from "./resource";
-import { SvnStatusBar } from "./statusBar";
+import { StatusBarCommands } from "./statusbar/statusBarCommands";
 import { svnErrorCodes } from "./svn";
 import { Repository as BaseRepository } from "./svnRepository";
 import { SvnRI } from "./svnRI";
@@ -47,6 +47,7 @@ import {
   toDisposable
 } from "./util";
 import { match, matchAll } from "./util/globMatch";
+import { RepositoryFilesWatcher } from "./watchers/repositoryFilesWatcher";
 
 function shouldShowProgress(operation: Operation): boolean {
   switch (operation) {
@@ -61,7 +62,7 @@ function shouldShowProgress(operation: Operation): boolean {
 
 export class Repository implements IRemoteRepository {
   public sourceControl: SourceControl;
-  public statusBar: SvnStatusBar;
+  public statusBar: StatusBarCommands;
   public changes: ISvnResourceGroup;
   public unversioned: ISvnResourceGroup;
   public remoteChanges?: ISvnResourceGroup;
@@ -78,6 +79,11 @@ export class Repository implements IRemoteRepository {
   private deletedUris: Uri[] = [];
 
   private lastPromptAuth?: Thenable<IAuth | undefined>;
+
+  private _fsWatcher: RepositoryFilesWatcher;
+  public get fsWatcher() {
+    return this._fsWatcher;
+  }
 
   private _onDidChangeRepository = new EventEmitter<Uri>();
   public readonly onDidChangeRepository: Event<Uri> = this
@@ -172,32 +178,13 @@ export class Repository implements IRemoteRepository {
   }
 
   constructor(public repository: BaseRepository) {
-    const fsWatcher = workspace.createFileSystemWatcher("**");
-    this.disposables.push(fsWatcher);
+    this._fsWatcher = new RepositoryFilesWatcher(repository.root);
+    this.disposables.push(this._fsWatcher);
 
-    const onWorkspaceChange = anyEvent(
-      fsWatcher.onDidChange,
-      fsWatcher.onDidCreate,
-      fsWatcher.onDidDelete
-    );
-
-    const onRepositoryChange = filterEvent(
-      onWorkspaceChange,
-      uri => !/^\.\./.test(path.relative(repository.root, uri.fsPath))
-    );
-    const onRelevantRepositoryChange = filterEvent(
-      onRepositoryChange,
-      uri => !/[\\\/]\.svn[\\\/]tmp/.test(uri.path)
-    );
-
-    onRelevantRepositoryChange(this.onFSChange, this, this.disposables);
-
-    const onRelevantSvnChange = filterEvent(onRelevantRepositoryChange, uri =>
-      /[\\\/]\.svn[\\\/]/.test(uri.path)
-    );
+    this._fsWatcher.onDidAny(this.onFSChange, this, this.disposables);
 
     // TODO on svn switch event fired two times since two files were changed
-    onRelevantSvnChange(
+    this._fsWatcher.onDidSvnAny(
       async (e: Uri) => {
         await this.repository.updateInfo();
         this._onDidChangeRepository.fire(e);
@@ -223,7 +210,7 @@ export class Repository implements IRemoteRepository {
     this.sourceControl.quickDiffProvider = this;
     this.disposables.push(this.sourceControl);
 
-    this.statusBar = new SvnStatusBar(this);
+    this.statusBar = new StatusBarCommands(this);
     this.disposables.push(this.statusBar);
     this.statusBar.onDidChange(
       () => (this.sourceControl.statusBarCommands = this.statusBar.commands),
@@ -264,12 +251,11 @@ export class Repository implements IRemoteRepository {
     );
 
     // For each deleted file, append to list
-    const onFsDelete = filterEvent(
-      fsWatcher.onDidDelete,
-      uri => !/[\\\/]\.svn[\\\/]/.test(uri.path)
+    this._fsWatcher.onDidWorkspaceDelete(
+      uri => this.deletedUris.push(uri),
+      this,
+      this.disposables
     );
-
-    onFsDelete(uri => this.deletedUris.push(uri), this, this.disposables);
 
     // Only check deleted files after the status list is fully updated
     this.onDidChangeStatus(this.actionForDeletedFiles, this, this.disposables);
@@ -442,6 +428,7 @@ export class Repository implements IRemoteRepository {
   }
 
   @throttle
+  @globalSequentialize("updateModelState")
   public async updateModelState(checkRemoteChanges: boolean = false) {
     const changes: any[] = [];
     const unversioned: any[] = [];
