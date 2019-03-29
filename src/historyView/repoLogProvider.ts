@@ -1,4 +1,3 @@
-import * as fs from "fs";
 import * as path from "path";
 import {
   commands,
@@ -17,6 +16,7 @@ import {
   ISvnLogEntry,
   ISvnLogEntryPath
 } from "../common/types";
+import { exists } from "../fs";
 import { Model } from "../model";
 import { ResourceKind } from "../pathNormalizer";
 import { IRemoteRepository } from "../remoteRepository";
@@ -205,7 +205,7 @@ export class RepoLogProvider
   public addRepolikeGui() {
     const box = window.createInputBox();
     box.prompt = "Enter SVN URL or local path";
-    box.onDidAccept(() => {
+    box.onDidAccept(async () => {
       let repoLike = box.value;
       if (
         !path.isAbsolute(repoLike) &&
@@ -215,7 +215,7 @@ export class RepoLogProvider
       ) {
         for (const wsf of workspace.workspaceFolders) {
           const joined = path.join(wsf.uri.fsPath, repoLike);
-          if (fs.existsSync(joined)) {
+          if (await exists(joined)) {
             repoLike = joined;
             break;
           }
@@ -234,11 +234,11 @@ export class RepoLogProvider
     box.show();
   }
 
-  public openFileRemoteCmd(element: ILogTreeItem) {
+  public async openFileRemoteCmd(element: ILogTreeItem) {
     const commit = element.data as ISvnLogEntryPath;
     const item = this.getCached(element);
     const ri = item.repo.getPathNormalizer().parse(commit._);
-    if (checkIfFile(ri, false) === false) {
+    if ((await checkIfFile(ri, false)) === false) {
       return;
     }
     const parent = (element.parent as ILogTreeItem).data as ISvnLogEntry;
@@ -259,7 +259,7 @@ export class RepoLogProvider
     const commit = element.data as ISvnLogEntryPath;
     const item = this.getCached(element);
     const ri = item.repo.getPathNormalizer().parse(commit._);
-    if (checkIfFile(ri, false) === false) {
+    if ((await checkIfFile(ri, false)) === false) {
       return;
     }
     const parent = (element.parent as ILogTreeItem).data as ISvnLogEntry;

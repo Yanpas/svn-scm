@@ -1,6 +1,5 @@
 import { createHash } from "crypto";
 import { distanceInWordsToNow } from "date-fns";
-import * as fs from "fs";
 import * as path from "path";
 import {
   commands,
@@ -11,6 +10,7 @@ import {
   window
 } from "vscode";
 import { ISvnLogEntry, ISvnLogEntryPath } from "../common/types";
+import { exists, lstat } from "../fs";
 import { configuration } from "../helpers/configuration";
 import { ResourceKind } from "../pathNormalizer";
 import { IRemoteRepository } from "../remoteRepository";
@@ -130,7 +130,10 @@ export function insertBaseMarker(
   return undefined;
 }
 
-export function checkIfFile(e: SvnRI, local: boolean): boolean | undefined {
+export async function checkIfFile(
+  e: SvnRI,
+  local: boolean
+): Promise<boolean | undefined> {
   if (e.localFullPath === undefined) {
     if (local) {
       window.showErrorMessage("No working copy for this path");
@@ -139,7 +142,7 @@ export function checkIfFile(e: SvnRI, local: boolean): boolean | undefined {
   }
   let stat;
   try {
-    stat = fs.lstatSync(e.localFullPath.fsPath);
+    stat = await lstat(e.localFullPath.fsPath);
   } catch {
     if (local) {
       window.showWarningMessage(
@@ -275,7 +278,7 @@ async function downloadFile(
     const nm = repo.getPathNormalizer();
     const ri = nm.parse(arg.toString(true));
     const localPath = ri.localFullPath;
-    if (localPath === undefined || !fs.existsSync(localPath.path)) {
+    if (localPath === undefined || !(await exists(localPath.path))) {
       const errorMsg =
         "BASE revision doesn't exist for " +
         (localPath ? localPath.path : "remote path");
