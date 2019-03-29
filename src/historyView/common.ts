@@ -286,12 +286,15 @@ async function downloadFile(
   }
   let out;
   try {
-    out = await repo.show({
-      path: arg,
-      rscKind: ResourceKind.RemoteFull,
-      revision,
-      isLocal: false
-    });
+    out = await repo.show(
+      {
+        path: arg,
+        rscKind: ResourceKind.RemoteFull,
+        revision,
+        isLocal: false
+      },
+      revision
+    );
   } catch (e) {
     window.showErrorMessage("Failed to open path");
     throw e;
@@ -321,12 +324,15 @@ export async function openFileRemote(
 ) {
   let out;
   try {
-    out = await repo.show({
-      path: arg,
-      rscKind: ResourceKind.RemoteFull,
-      revision: against,
-      isLocal: false
-    });
+    out = await repo.show(
+      {
+        path: arg,
+        rscKind: ResourceKind.RemoteFull,
+        revision: against,
+        isLocal: false
+      },
+      against
+    );
   } catch {
     window.showErrorMessage("Failed to open path");
     return;
