@@ -853,7 +853,7 @@ export class Repository implements IRemoteRepository {
     rto: string,
     useMergeInfo: boolean,
     limit?: number,
-    target?: ITarget,
+    target?: ITarget
   ) {
     const pn = this.getPathNormalizer();
     let ri: SvnRI | undefined;
