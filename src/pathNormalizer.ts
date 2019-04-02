@@ -39,7 +39,7 @@ export class PathNormalizer {
       const target = Uri.parse(fpath).path;
       return nativepath
         .relative(pathOrRoot(this.repoRoot), target)
-        .replace("\\", "/");
+        .replace(/\\/g, path.sep);
     } else {
       throw new Error("unknown path");
     }
@@ -70,7 +70,7 @@ export class PathNormalizer {
         if (kind === ResourceKind.LocalFull) {
           target = nativepath.relative(this.checkoutRoot.fsPath, target);
         }
-        target = path.join(this.fromRootToBranch(), target);
+        target = path.join(this.fromRootToBranch(), target.replace(/\\/g, path.sep));
         break;
       default:
         throw new Error("unsupported kind");

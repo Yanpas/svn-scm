@@ -242,7 +242,7 @@ export class RepoLogProvider
       return;
     }
     const parent = (element.parent as ILogTreeItem).data as ISvnLogEntry;
-    return openFileRemote(item.repo, ri.remoteFullPath, parent.revision);
+    return openFileRemote(item.repo, ri.remoteFullPath, parent.revision, parent.revision);
   }
 
   public openFileLocal(element: ILogTreeItem) {
@@ -303,6 +303,7 @@ export class RepoLogProvider
       item.repo,
       ri.remoteFullPath,
       prevRev.revision,
+      parent.revision,
       parent.revision
     );
   }

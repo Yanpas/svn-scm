@@ -272,7 +272,8 @@ Message: ${commit.msg}`;
 async function downloadFile(
   repo: IRemoteRepository,
   arg: Uri,
-  revision: string
+  revision: string,
+  argRevision: string|undefined
 ): Promise<Uri> {
   if (revision === "BASE") {
     const nm = repo.getPathNormalizer();
@@ -293,7 +294,7 @@ async function downloadFile(
       {
         path: arg,
         rscKind: ResourceKind.RemoteFull,
-        revision,
+        revision: argRevision,
         isLocal: false
       },
       revision
@@ -309,10 +310,11 @@ export async function openDiff(
   repo: IRemoteRepository,
   arg: Uri,
   r1: string,
-  r2: string
+  r2: string,
+  argRevision: string|undefined
 ) {
-  const uri1 = await downloadFile(repo, arg, r1);
-  const uri2 = await downloadFile(repo, arg, r2);
+  const uri1 = await downloadFile(repo, arg, r1, argRevision);
+  const uri2 = await downloadFile(repo, arg, r2, argRevision);
   const opts: TextDocumentShowOptions = {
     preview: true
   };
@@ -323,24 +325,10 @@ export async function openDiff(
 export async function openFileRemote(
   repo: IRemoteRepository,
   arg: Uri,
-  against: string
+  against: string,
+  argRevision: string|undefined
 ) {
-  let out;
-  try {
-    out = await repo.show(
-      {
-        path: arg,
-        rscKind: ResourceKind.RemoteFull,
-        revision: against,
-        isLocal: false
-      },
-      against
-    );
-  } catch {
-    window.showErrorMessage("Failed to open path");
-    return;
-  }
-  const localUri = await dumpSvnFile(arg, against, out);
+  const localUri = await downloadFile(repo, arg, against, argRevision);
   const opts: TextDocumentShowOptions = {
     preview: true
   };

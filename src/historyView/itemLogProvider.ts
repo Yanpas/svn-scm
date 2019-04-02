@@ -118,7 +118,7 @@ export class ItemLogProvider
       commit,
       item.repo.getPathNormalizer()
     );
-    return openFileRemote(item.repo, ri.remoteFullPath, commit.revision);
+    return openFileRemote(item.repo, item.svnTarget, commit.revision, undefined);
   }
 
   public async openDiffBaseCmd(element: ILogTreeItem) {
@@ -129,7 +129,7 @@ export class ItemLogProvider
       commit,
       item.repo.getPathNormalizer()
     );
-    return openDiff(item.repo, ri.remoteFullPath, commit.revision, "BASE");
+    return openDiff(item.repo, item.svnTarget, commit.revision, "BASE", undefined);
   }
 
   public async openDiffCmd(element: ILogTreeItem) {
@@ -151,7 +151,7 @@ export class ItemLogProvider
       return;
     }
     const prevRev = item.entries[pos + 1].revision;
-    return openDiff(item.repo, ri.remoteFullPath, prevRev, commit.revision);
+    return openDiff(item.repo, item.svnTarget, prevRev, commit.revision, undefined);
   }
 
   public async editorChanged(te?: TextEditor) {

@@ -17,7 +17,7 @@ export class SvnRI {
     private readonly _path: string,
     revision?: string
   ) {
-    if (_path.length === 0 || _path.charAt(0) === "/") {
+    if (_path.charAt(0) === "/") {
       throw new Error("Invalid _path " + _path);
     }
     if (revision !== undefined) {
