@@ -2,7 +2,7 @@
   "name": "svn-scm",
   "displayName": "SVN",
   "description": "Integrated Subversion source control",
-  "version": "1.47.12",
+  "version": "1.48.0",
   "publisher": "johnstoncode",
   "engines": {
     "vscode": "^1.26.0"
@@ -60,7 +60,7 @@
     "@types/istanbul": "^0.4.30",
     "@types/mocha": "^5.2.6",
     "@types/node": "^11.12.0",
-    "@types/semver": "^5.5.0",
+    "@types/semver": "^6.0.0",
     "@types/tmp": "0.0.34",
     "@types/xml2js": "^0.4.3",
     "codecov": "^3.2.0",
@@ -296,7 +296,20 @@
       {
         "command": "svn.revert",
         "title": "Revert Selected File",
-        "category": "SVN"
+        "category": "SVN",
+        "icon": {
+          "light": "icons/light/clean.svg",
+          "dark": "icons/dark/clean.svg"
+        }
+      },
+      {
+        "command": "svn.revertAll",
+        "title": "Revert All Changes",
+        "category": "SVN",
+        "icon": {
+          "light": "icons/light/clean.svg",
+          "dark": "icons/dark/clean.svg"
+        }
       },
       {
         "command": "svn.update",
@@ -485,6 +498,10 @@
         },
         {
           "command": "svn.revertChange",
+          "when": "false"
+        },
+        {
+          "command": "svn.revertAll",
           "when": "false"
         },
         {
@@ -699,6 +716,16 @@
           "command": "svn.refreshRemoteChanges",
           "when": "config.svn.enabled && scmProvider == svn && scmResourceGroup == remotechanges",
           "group": "navigation"
+        },
+        {
+          "command": "svn.revertAll",
+          "when": "config.svn.enabled && scmProvider == svn && scmResourceGroup == changes",
+          "group": "navigation"
+        },
+        {
+          "command": "svn.revertAll",
+          "when": "config.svn.enabled && scmProvider == svn && scmResourceGroup == changes",
+          "group": "inline"
         }
       ],
       "scm/resourceState/context": [
@@ -766,6 +793,11 @@
           "command": "svn.revert",
           "when": "config.svn.enabled && scmProvider == svn && scmResourceGroup != unversioned && scmResourceGroup != external && scmResourceGroup != conflicts && scmResourceGroup != remotechanged",
           "group": "2_modification"
+        },
+        {
+          "command": "svn.revert",
+          "when": "config.svn.enabled && scmProvider == svn && scmResourceGroup != unversioned && scmResourceGroup != external && scmResourceGroup != conflicts && scmResourceGroup != remotechanged",
+          "group": "inline"
         },
         {
           "command": "svn.remove",

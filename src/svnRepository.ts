@@ -22,7 +22,7 @@ import { parseSvnLog } from "./logParser";
 import { parseStatusXml } from "./statusParser";
 import { Svn } from "./svn";
 import { SvnRI } from "./svnRI";
-import { fixPathSeparator, unwrap } from "./util";
+import { fixPathSeparator, fixPegRevision, unwrap } from "./util";
 
 export class Repository {
   private _infoCache: { [index: string]: ISvnInfo } = {};
@@ -49,7 +49,7 @@ export class Repository {
   }
 
   public async updateInfo() {
-    const result = await this.exec(["info", "--xml", this.root]);
+    const result = await this.exec(["info", "--xml", fixPegRevision(this.root)]);
     this._info = await parseInfoXml(result.stdout);
   }
 
@@ -72,12 +72,7 @@ export class Repository {
       file = ".";
     }
 
-    // Fix Peg Revision Algorithm (http://svnbook.red-bean.com/en/1.8/svn.advanced.pegrevs.html)
-    if (/@/.test(file)) {
-      file += "@";
-    }
-
-    return file;
+    return fixPegRevision(file);
   }
 
   public async getStatus(params: {
