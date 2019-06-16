@@ -1,6 +1,6 @@
 import * as path from "path";
 import * as tmp from "tmp";
-import { Uri, workspace } from "vscode";
+import { workspace } from "vscode";
 import { parseSvnBlame } from "./blameParser";
 import {
   ConstructorPolicy,
@@ -10,9 +10,11 @@ import {
   ISvnBlameEntry,
   ISvnInfo,
   ISvnLogEntry,
-  Status
+  Status,
+  SvnDepth
 } from "./common/types";
 import { sequentialize } from "./decorators";
+import * as encodeUtil from "./encoding";
 import { exists, writeFile } from "./fs";
 import { getBranchName } from "./helpers/branch";
 import { configuration } from "./helpers/configuration";
@@ -22,7 +24,12 @@ import { parseSvnLog } from "./logParser";
 import { parseStatusXml } from "./statusParser";
 import { Svn } from "./svn";
 import { SvnRI } from "./svnRI";
-import { fixPathSeparator, fixPegRevision, unwrap } from "./util";
+import {
+  fixPathSeparator,
+  fixPegRevision,
+  normalizePath,
+  unwrap
+} from "./util";
 
 export class Repository {
   private _infoCache: { [index: string]: ISvnInfo } = {};
@@ -49,7 +56,11 @@ export class Repository {
   }
 
   public async updateInfo() {
-    const result = await this.exec(["info", "--xml", fixPegRevision(this.root)]);
+    const result = await this.exec([
+      "info",
+      "--xml",
+      fixPegRevision(this.root)
+    ]);
     this._info = await parseInfoXml(result.stdout);
   }
 
@@ -167,20 +178,56 @@ export class Repository {
     revision?: string
   ): Promise<string> {
     const args = ["cat"];
-    if (isLocal) {
-      args.push(unwrap(target.localFullPath).fsPath);
-    } else {
-      args.push(target.toString(true));
-    }
-    if (revision !== undefined) {
+
+    if (revision) {
       args.push("-r", revision);
     }
 
-    let encoding = "utf8";
+    args.push(isLocal
+          ? target.localFullPath!.toString(true)
+          : target.remoteFullPath.toString(true)
+    );
+
+    /**
+     * ENCODE DETECTION
+     * if TextDocuments exists and autoGuessEncoding is true,
+     * try detect current encoding of content
+     */
+    const configs = workspace.getConfiguration("files", target.localFullPath);
+
+    let encoding: string | undefined | null = configs.get("encoding");
+    let autoGuessEncoding: boolean = configs.get<boolean>(
+      "autoGuessEncoding",
+      false
+    );
+
     if (isLocal) {
-      encoding = workspace
-        .getConfiguration("files", target.localFullPath)
-        .get<string>("encoding", encoding);
+      const textDocument = workspace.textDocuments.find(
+        doc => normalizePath(doc.uri.fsPath) === normalizePath(target.localFullPath!.fsPath)
+      );
+
+      if (textDocument) {
+        // Load encoding by languageId
+        const languageConfigs = workspace.getConfiguration(
+          `[${textDocument.languageId}]`,
+          target.localFullPath!
+        );
+        if (languageConfigs["files.encoding"] !== undefined) {
+          encoding = languageConfigs["files.encoding"];
+        }
+        if (languageConfigs["files.autoGuessEncoding"] !== undefined) {
+          autoGuessEncoding = languageConfigs["files.autoGuessEncoding"];
+        }
+
+        if (autoGuessEncoding) {
+          // The `getText` return a `utf-8` string
+          const buffer = Buffer.from(textDocument.getText(), "utf-8");
+          const detectedEncoding = encodeUtil.detectEncoding(buffer);
+          if (detectedEncoding) {
+            encoding = detectedEncoding;
+          }
+        }
+      }
     }
 
     const result = await this.exec(args, { encoding });
@@ -197,7 +244,7 @@ export class Repository {
       args.push("--force-log");
     }
 
-    let tmpFile: tmp.SynchrounousResult | undefined;
+    let tmpFile: tmp.FileResult | undefined;
 
     /**
      * For message with line break or non:
@@ -232,7 +279,15 @@ export class Repository {
 
     const matches = result.stdout.match(/Committed revision (.*)\./i);
     if (matches && matches[0]) {
-      return matches[0];
+      const sendedFiles = (
+        result.stdout.match(/(Sending|Adding|Deleting)\s+/g) || []
+      ).length;
+
+      const filesMessage = `${sendedFiles} ${
+        sendedFiles === 1 ? "file" : "files"
+      } commited`;
+
+      return `${filesMessage}: revision ${matches[1]}.`;
     }
 
     return result.stdout;
@@ -305,7 +360,7 @@ export class Repository {
       promises.push(
         new Promise<string[]>(async resolve => {
           try {
-            const trunkExists = await this.exec([
+            await this.exec([
               "ls",
               repoUrl + "/" + trunkLayout,
               "--depth",
@@ -369,13 +424,8 @@ export class Repository {
     const newBranch = repoUrl + "/" + name;
     const info = await this.getInfo();
     const currentBranch = info.url;
-    const result = await this.exec([
-      "copy",
-      currentBranch,
-      newBranch,
-      "-m",
-      commitMessage
-    ]);
+
+    await this.exec(["copy", currentBranch, newBranch, "-m", commitMessage]);
 
     await this.switchBranch(name);
 
@@ -394,9 +444,9 @@ export class Repository {
     return true;
   }
 
-  public async revert(files: string[]) {
+  public async revert(files: string[], depth: keyof typeof SvnDepth) {
     files = files.map(file => this.removeAbsolutePath(file));
-    const result = await this.exec(["revert", ...files]);
+    const result = await this.exec(["revert", "--depth", depth, ...files]);
     return result.stdout;
   }
 
@@ -442,13 +492,18 @@ export class Repository {
 
   public async patch(files: string[]) {
     files = files.map(file => this.removeAbsolutePath(file));
-    const result = await this.exec(["diff", ...files]);
+    const result = await this.exec(["diff", "--internal-diff", ...files]);
     const message = result.stdout;
     return message;
   }
 
   public async patchChangelist(changelistName: string) {
-    const result = await this.exec(["diff", "--changelist", changelistName]);
+    const result = await this.exec([
+      "diff",
+      "--internal-diff",
+      "--changelist",
+      changelistName
+    ]);
     const message = result.stdout;
     return message;
   }

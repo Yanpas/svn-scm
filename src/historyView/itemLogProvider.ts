@@ -11,7 +11,7 @@ import {
   Uri,
   window
 } from "vscode";
-import { ISvnLogEntry, Status } from "../common/types";
+import { ISvnLogEntry } from "../common/types";
 import { Model } from "../model";
 import { PathNormalizer } from "../pathNormalizer";
 import { SvnRI } from "../svnRI";
@@ -113,33 +113,18 @@ export class ItemLogProvider
   public async openFileRemoteCmd(element: ILogTreeItem) {
     const commit = element.data as ISvnLogEntry;
     const item = unwrap(this.currentItem);
-    const ri = findSimilarPath(
-      item.svnTarget,
-      commit,
-      item.repo.getPathNormalizer()
-    );
     return openFileRemote(item.repo, item.svnTarget, commit.revision, undefined);
   }
 
   public async openDiffBaseCmd(element: ILogTreeItem) {
     const commit = element.data as ISvnLogEntry;
     const item = unwrap(this.currentItem);
-    const ri = findSimilarPath(
-      item.svnTarget,
-      commit,
-      item.repo.getPathNormalizer()
-    );
     return openDiff(item.repo, item.svnTarget, commit.revision, "BASE", undefined);
   }
 
   public async openDiffCmd(element: ILogTreeItem) {
     const commit = element.data as ISvnLogEntry;
     const item = unwrap(this.currentItem);
-    const ri = findSimilarPath(
-      item.svnTarget,
-      commit,
-      item.repo.getPathNormalizer()
-    );
     // We are using commit.paths instead of svnTarget since history may contain other branches.
     // FIXME On the other hand branch merge diffs do not work for individual files (path is ^/trunk e.g.)
     // TODO add some heuristicts
@@ -180,7 +165,7 @@ export class ItemLogProvider
           return; // do not refresh if diff was called
         }
         const repo = this.model.getRepository(uri);
-        if (repo !== undefined) {
+        if (repo !== null) {
           try {
             const info = await repo.getInfo(uri.fsPath);
             this.currentItem = {

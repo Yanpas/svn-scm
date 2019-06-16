@@ -181,7 +181,7 @@ export enum PropStatus {
 
 export interface ICpOptions extends SpawnOptions {
   cwd?: string;
-  encoding?: string;
+  encoding?: string | null;
   log?: boolean;
   username?: string;
   password?: string;
@@ -274,4 +274,11 @@ export interface ISvnLogEntry extends ISvnCommit {
 export interface ISvnBlameEntry {
   lineNumber: string;
   commit?: ISvnCommit;
+}
+
+export enum SvnDepth {
+  empty = "only the target itself",
+  files = "the target and any immediate file children thereof",
+  immediates = "the target and any immediate children thereof",
+  infinity = "the target and all of its descendants—full recursion"
 }

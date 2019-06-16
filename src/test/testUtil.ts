@@ -3,8 +3,6 @@
 import * as cp from "child_process";
 import { ChildProcess, SpawnOptions } from "child_process";
 import * as fs from "original-fs";
-import * as os from "os";
-import { type } from "os";
 import * as path from "path";
 import * as tmp from "tmp";
 import { extensions, Uri, window } from "vscode";
@@ -12,7 +10,7 @@ import { timeout } from "../util";
 
 tmp.setGracefulCleanup();
 
-const tempDirList: tmp.SynchrounousResult[] = [];
+const tempDirList: tmp.DirResult[] = [];
 
 export function getSvnUrl(uri: Uri) {
   return uri.toString(true);
@@ -20,8 +18,8 @@ export function getSvnUrl(uri: Uri) {
 
 export function spawn(
   command: string,
-  args?: string[],
-  options?: SpawnOptions
+  args: string[] = [],
+  options: SpawnOptions = {}
 ): ChildProcess {
   const proc = cp.spawn(command, args, options);
 
@@ -107,7 +105,6 @@ export async function createStandardLayout(
   tags = "tags"
 ) {
   const fullpath = newTempDir("svn_layout_");
-  const dirname = path.basename(fullpath);
 
   fs.mkdirSync(path.join(fullpath, trunk));
   fs.mkdirSync(path.join(fullpath, branches));
@@ -203,7 +200,7 @@ window.showInputBox = (...args: any[]) => {
   if (typeof next === "undefined") {
     return originalShowInputBox.call(null, args as any);
   }
-  return new Promise((resolve, reject) => {
+  return new Promise((resolve, _reject) => {
     resolve(next);
   });
 };
@@ -229,7 +226,7 @@ window.showQuickPick = (
     next = items[next];
   }
 
-  return new Promise((resolve, reject) => {
+  return new Promise((resolve, _reject) => {
     resolve(next);
   });
 };

@@ -221,7 +221,7 @@ export class GutterBlame implements Disposable {
     const res: Array<[TextEditorDecorationType, number]> = [];
 
     const activeLine = this.editor.selection.active.line;
-    let revision;
+    let revision: number | undefined;
     for (const blame of this.blames) {
       // TODO binray search ?
       if (activeLine >= blame.lineStart && activeLine < blame.lineEnd) {

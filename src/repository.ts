@@ -23,12 +23,14 @@ import {
   Operation,
   RepositoryState,
   Status,
+  SvnDepth,
   SvnUriAction
 } from "./common/types";
 import { debounce, globalSequentialize, memoize, throttle } from "./decorators";
+import { exists } from "./fs";
 import { configuration } from "./helpers/configuration";
 import OperationsImpl from "./operationsImpl";
-import { PathNormalizer, ResourceKind } from "./pathNormalizer";
+import { PathNormalizer } from "./pathNormalizer";
 import { IRemoteRepository, ITarget } from "./remoteRepository";
 import { Resource } from "./resource";
 import { StatusBarCommands } from "./statusbar/statusBarCommands";
@@ -132,7 +134,7 @@ export class Repository implements IRemoteRepository {
     this.changes.resourceStates = [];
     this.unversioned.resourceStates = [];
     this.conflicts.resourceStates = [];
-    this.changelists.forEach((group, changelist) => {
+    this.changelists.forEach((group, _changelist) => {
       group.resourceStates = [];
     });
 
@@ -361,6 +363,8 @@ export class Repository implements IRemoteRepository {
     } else if (actionForDeletedFiles === "prompt") {
       return await commands.executeCommand("svn.promptRemove", ...uris);
     }
+
+    return;
   }
 
   @debounce(1000)
@@ -381,7 +385,7 @@ export class Repository implements IRemoteRepository {
     }
   }
 
-  private onFSChange(uri: Uri): void {
+  private onFSChange(_uri: Uri): void {
     const autorefresh = configuration.get<boolean>("autorefresh");
 
     if (!autorefresh) {
@@ -432,7 +436,6 @@ export class Repository implements IRemoteRepository {
   public async updateModelState(checkRemoteChanges: boolean = false) {
     const changes: any[] = [];
     const unversioned: any[] = [];
-    const external: any[] = [];
     const conflicts: any[] = [];
     const changelists: Map<string, Resource[]> = new Map();
     const remoteChanges: any[] = [];
@@ -590,15 +593,11 @@ export class Repository implements IRemoteRepository {
 
     const prevChangelistsSize = this.changelists.size;
 
-    this.changelists.forEach((group, changelist) => {
+    this.changelists.forEach((group, _changelist) => {
       group.resourceStates = [];
     });
 
     const counts = [this.changes, this.conflicts];
-
-    const ignoreOnCommitList = configuration.get<string[]>(
-      "sourceControl.ignoreOnCommit"
-    );
 
     const ignoreOnStatusCountList = configuration.get<string[]>(
       "sourceControl.ignoreOnStatusCount"
@@ -820,8 +819,10 @@ export class Repository implements IRemoteRepository {
     );
   }
 
-  public async revert(files: string[]) {
-    return this.run(Operation.Revert, () => this.repository.revert(files));
+  public async revert(files: string[], depth: keyof typeof SvnDepth) {
+    return this.run(Operation.Revert, () =>
+      this.repository.revert(files, depth)
+    );
   }
 
   public async info(path: string) {
@@ -978,6 +979,11 @@ export class Repository implements IRemoteRepository {
       } catch (err) {
         if (err.svnErrorCode === svnErrorCodes.NotASvnRepository) {
           this.state = RepositoryState.Disposed;
+        }
+
+        const rootExists = await exists(this.workspaceRoot);
+        if (!rootExists) {
+          await commands.executeCommand("svn.close", this);
         }
 
         throw err;

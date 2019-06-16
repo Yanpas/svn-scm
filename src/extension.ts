@@ -16,7 +16,9 @@ import { configuration } from "./helpers/configuration";
 import { blameCurrentFile } from "./historyView/gutterBlame";
 import { ItemLogProvider } from "./historyView/itemLogProvider";
 import { RepoLogProvider } from "./historyView/repoLogProvider";
+import * as messages from "./messages";
 import { Model } from "./model";
+import { checkProposedApi } from "./proposed";
 import { Svn } from "./svn";
 import { SvnContentProvider } from "./svnContentProvider";
 import { SvnFinder } from "./svnFinder";
@@ -28,7 +30,7 @@ import {
 } from "./util";
 
 async function init(
-  context: ExtensionContext,
+  _context: ExtensionContext,
   outputChannel: OutputChannel,
   disposables: Disposable[]
 ) {
@@ -83,6 +85,9 @@ async function init(
   disposables.push(
     toDisposable(() => svn.onOutput.removeListener("log", onOutput))
   );
+  disposables.push(toDisposable(messages.dispose));
+
+  checkProposedApi();
 }
 
 async function _activate(context: ExtensionContext, disposables: Disposable[]) {
@@ -177,5 +182,5 @@ export async function activate(context: ExtensionContext) {
 
 // this method is called when your extension is deactivated
 /* tslint:disable:no-empty */
-function deactivate() {}
+function deactivate() { }
 exports.deactivate = deactivate;

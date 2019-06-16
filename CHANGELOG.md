@@ -1,3 +1,136 @@
+# [1.54.0](https://github.com/JohnstonCode/svn-scm/compare/v1.53.0...v1.54.0) (2019-06-14)
+
+
+### Features
+
+* Added support to revert from explorer (close [#606](https://github.com/JohnstonCode/svn-scm/issues/606)) ([#608](https://github.com/JohnstonCode/svn-scm/issues/608)) ([02c983b](https://github.com/JohnstonCode/svn-scm/commit/02c983b))
+
+# [1.53.0](https://github.com/JohnstonCode/svn-scm/compare/v1.52.2...v1.53.0) (2019-06-07)
+
+
+### Features
+
+* Added option to enable proposed features ([#602](https://github.com/JohnstonCode/svn-scm/issues/602)) ([3eedbb5](https://github.com/JohnstonCode/svn-scm/commit/3eedbb5))
+
+## [1.52.2](https://github.com/JohnstonCode/svn-scm/compare/v1.52.1...v1.52.2) (2019-06-04)
+
+
+### Bug Fixes
+
+* Allow pick commit on multi-line messages ([#601](https://github.com/JohnstonCode/svn-scm/issues/601)) ([269d781](https://github.com/JohnstonCode/svn-scm/commit/269d781))
+
+## [1.52.1](https://github.com/JohnstonCode/svn-scm/compare/v1.52.0...v1.52.1) (2019-06-04)
+
+
+### Bug Fixes
+
+* Fixed "failed to open path" for remote (close [#593](https://github.com/JohnstonCode/svn-scm/issues/593)) ([#600](https://github.com/JohnstonCode/svn-scm/issues/600)) ([c9190aa](https://github.com/JohnstonCode/svn-scm/commit/c9190aa))
+
+# [1.52.0](https://github.com/JohnstonCode/svn-scm/compare/v1.51.0...v1.52.0) (2019-06-03)
+
+
+### Features
+
+* Allow multi-line commit messages (close [#471](https://github.com/JohnstonCode/svn-scm/issues/471)) ([#589](https://github.com/JohnstonCode/svn-scm/issues/589)) ([bb06651](https://github.com/JohnstonCode/svn-scm/commit/bb06651))
+
+# [1.51.0](https://github.com/JohnstonCode/svn-scm/compare/v1.50.5...v1.51.0) (2019-06-03)
+
+
+### Features
+
+* Added support to pick a previous commit message (close [#358](https://github.com/JohnstonCode/svn-scm/issues/358)) ([#599](https://github.com/JohnstonCode/svn-scm/issues/599)) ([b179bd0](https://github.com/JohnstonCode/svn-scm/commit/b179bd0))
+
+## [1.50.5](https://github.com/JohnstonCode/svn-scm/compare/v1.50.4...v1.50.5) (2019-06-03)
+
+
+### Bug Fixes
+
+* Improved commit message notification (close [#545](https://github.com/JohnstonCode/svn-scm/issues/545)) ([#598](https://github.com/JohnstonCode/svn-scm/issues/598)) ([b5f3488](https://github.com/JohnstonCode/svn-scm/commit/b5f3488))
+
+## [1.50.4](https://github.com/JohnstonCode/svn-scm/compare/v1.50.3...v1.50.4) (2019-06-03)
+
+
+### Bug Fixes
+
+* Fixed changelists for externals (close [#569](https://github.com/JohnstonCode/svn-scm/issues/569)) ([#597](https://github.com/JohnstonCode/svn-scm/issues/597)) ([3aa381f](https://github.com/JohnstonCode/svn-scm/commit/3aa381f))
+
+## [1.50.3](https://github.com/JohnstonCode/svn-scm/compare/v1.50.2...v1.50.3) (2019-06-03)
+
+
+### Bug Fixes
+
+* Fixed diff gutter cache (close [#483](https://github.com/JohnstonCode/svn-scm/issues/483)) ([#596](https://github.com/JohnstonCode/svn-scm/issues/596)) ([620b701](https://github.com/JohnstonCode/svn-scm/commit/620b701))
+
+## [1.50.2](https://github.com/JohnstonCode/svn-scm/compare/v1.50.1...v1.50.2) (2019-06-03)
+
+
+### Bug Fixes
+
+* Fixed diff for files with "@" (close [#223](https://github.com/JohnstonCode/svn-scm/issues/223)) ([#595](https://github.com/JohnstonCode/svn-scm/issues/595)) ([ee41f49](https://github.com/JohnstonCode/svn-scm/commit/ee41f49))
+
+## [1.50.1](https://github.com/JohnstonCode/svn-scm/compare/v1.50.0...v1.50.1) (2019-06-01)
+
+
+### Bug Fixes
+
+* Fixed encoding detection for gutter (close [#526](https://github.com/JohnstonCode/svn-scm/issues/526)) ([#590](https://github.com/JohnstonCode/svn-scm/issues/590)) ([22e40f9](https://github.com/JohnstonCode/svn-scm/commit/22e40f9))
+
+# [1.50.0](https://github.com/JohnstonCode/svn-scm/compare/v1.49.0...v1.50.0) (2019-05-29)
+
+
+### Features
+
+* Automatic close repository when folder not exists ([#587](https://github.com/JohnstonCode/svn-scm/issues/587)) ([83d81d2](https://github.com/JohnstonCode/svn-scm/commit/83d81d2))
+
+# [1.49.0](https://github.com/JohnstonCode/svn-scm/compare/v1.48.6...v1.49.0) (2019-05-29)
+
+
+### Features
+
+* Allow to scan repository on ignored folders (close [#570](https://github.com/JohnstonCode/svn-scm/issues/570)) ([#586](https://github.com/JohnstonCode/svn-scm/issues/586)) ([be7069d](https://github.com/JohnstonCode/svn-scm/commit/be7069d))
+
+## [1.48.6](https://github.com/JohnstonCode/svn-scm/compare/v1.48.5...v1.48.6) (2019-05-24)
+
+
+### Bug Fixes
+
+* Able to revert folders with children ([#577](https://github.com/JohnstonCode/svn-scm/issues/577)) ([9bf7683](https://github.com/JohnstonCode/svn-scm/commit/9bf7683))
+
+## [1.48.5](https://github.com/JohnstonCode/svn-scm/compare/v1.48.4...v1.48.5) (2019-05-21)
+
+
+### Bug Fixes
+
+* Show alert to work with code-server ([#579](https://github.com/JohnstonCode/svn-scm/issues/579)) ([605b321](https://github.com/JohnstonCode/svn-scm/commit/605b321))
+
+## [1.48.4](https://github.com/JohnstonCode/svn-scm/compare/v1.48.3...v1.48.4) (2019-05-13)
+
+
+### Bug Fixes
+
+* Diffs now use internal diff flag ([#572](https://github.com/JohnstonCode/svn-scm/issues/572)) ([42e514c](https://github.com/JohnstonCode/svn-scm/commit/42e514c)), closes [#558](https://github.com/JohnstonCode/svn-scm/issues/558)
+
+## [1.48.3](https://github.com/JohnstonCode/svn-scm/compare/v1.48.2...v1.48.3) (2019-05-13)
+
+
+### Bug Fixes
+
+* Added origional-fs polyfil for remote vs code ([#571](https://github.com/JohnstonCode/svn-scm/issues/571)) ([9da6001](https://github.com/JohnstonCode/svn-scm/commit/9da6001)), closes [#561](https://github.com/JohnstonCode/svn-scm/issues/561)
+
+## [1.48.2](https://github.com/JohnstonCode/svn-scm/compare/v1.48.1...v1.48.2) (2019-05-10)
+
+
+### Bug Fixes
+
+* Fixed inline commands for remote changes group ([#568](https://github.com/JohnstonCode/svn-scm/issues/568)) ([8940f6f](https://github.com/JohnstonCode/svn-scm/commit/8940f6f))
+
+## [1.48.1](https://github.com/JohnstonCode/svn-scm/compare/v1.48.0...v1.48.1) (2019-04-24)
+
+
+### Bug Fixes
+
+* Fixed deleting unversioned folders with nested files [#554](https://github.com/JohnstonCode/svn-scm/issues/554) ([#555](https://github.com/JohnstonCode/svn-scm/issues/555)) ([6cf322c](https://github.com/JohnstonCode/svn-scm/commit/6cf322c))
+
 # [1.48.0](https://github.com/JohnstonCode/svn-scm/compare/v1.47.13...v1.48.0) (2019-04-10)
 
 
