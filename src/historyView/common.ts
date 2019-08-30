@@ -217,9 +217,12 @@ function md5(s: string): string {
 export function getGravatarIcon(
   author: string,
   size: number = 16
-): Uri | undefined {
-  if (!configuration.get("gravatars.enabled", true) as boolean) {
-    return undefined;
+): Uri | { light: Uri; dark: Uri } {
+  if (
+    (!configuration.get("gravatars.enabled", true) as boolean) ||
+    author === undefined
+  ) {
+    return getIconObject("icon-commit");
   }
 
   let gravatar = gravatarCache.get(author);

@@ -2,7 +2,7 @@
   "name": "svn-scm",
   "displayName": "SVN",
   "description": "Integrated Subversion source control",
-  "version": "1.54.0",
+  "version": "1.54.4",
   "publisher": "johnstoncode",
   "engines": {
     "vscode": "^1.26.0"
@@ -36,11 +36,9 @@
     "build:css": "node-sass scss/ -o css/ --output-style compressed",
     "build:ts": "npx tsc -p ./",
     "build": "npm run build:ts && npm run build:css",
-    "commit": "npx git-cz",
     "compile": "npx tsc -watch -p ./",
     "lint:fix": "npx tslint --fix -p ./",
     "lint": "npx tslint -p ./",
-    "postinstall": "node ./node_modules/vscode/bin/install",
     "semantic-release": "semantic-release",
     "style-check": "npx prettylint src/**/*.ts",
     "test": "node ./out/test/runTest.js",
@@ -57,18 +55,17 @@
     "xml2js": "^0.4.19"
   },
   "devDependencies": {
-    "@semantic-release/changelog": "^3.0.2",
-    "@semantic-release/git": "^7.0.8",
+    "@semantic-release/changelog": "^3.0.4",
+    "@semantic-release/git": "^7.0.16",
     "@types/glob": "^7.1.1",
     "@types/istanbul": "^0.4.30",
     "@types/mocha": "^5.2.6",
-    "@types/node": "^12.0.1",
+    "@types/node": "^12.0.12",
     "@types/semver": "^6.0.0",
     "@types/tmp": "0.1.0",
+    "@types/vscode": "^1.26.0",
     "@types/xml2js": "^0.4.4",
     "codecov": "^3.4.0",
-    "commitizen": "^3.1.1",
-    "cz-conventional-changelog": "^2.1.0",
     "decache": "^4.5.1",
     "glob": "^7.1.4",
     "istanbul": "^0.4.5",
@@ -77,15 +74,15 @@
     "mocha-junit-reporter": "^1.22.0",
     "mocha-multi-reporters": "^1.1.7",
     "node-sass": "^4.12.0",
-    "prettier": "^1.17.1",
+    "prettier": "^1.18.2",
     "prettylint": "^1.0.0",
     "remap-istanbul": "^0.13.0",
     "semantic-release": "^15.13.13",
     "semantic-release-vsce": "^2.2.8",
+    "source-map-support": "^0.5.12",
     "tslint": "^5.16.0",
     "typescript": "^3.4.5",
-    "vscode": "^1.1.34",
-    "vscode-test": "^0.4.1"
+    "vscode-test": "^1.0.0"
   },
   "config": {
     "commitizen": {
@@ -963,7 +960,7 @@
           ],
           "description": "Path to the svn executable",
           "default": null,
-          "isExecutable": true
+          "scope": "machine"
         },
         "svn.defaultCheckoutDirectory": {
           "type": "string",

@@ -1,3 +1,31 @@
+## [1.54.4](https://github.com/JohnstonCode/svn-scm/compare/v1.54.3...v1.54.4) (2019-07-15)
+
+
+### Bug Fixes
+
+* Fixes single click diff on incoming change tree ([#643](https://github.com/JohnstonCode/svn-scm/issues/643)) ([da854b9](https://github.com/JohnstonCode/svn-scm/commit/da854b9))
+
+## [1.54.3](https://github.com/JohnstonCode/svn-scm/compare/v1.54.2...v1.54.3) (2019-07-01)
+
+
+### Bug Fixes
+
+* Commit icon for undefined author ([#626](https://github.com/JohnstonCode/svn-scm/issues/626)) ([85c07e4](https://github.com/JohnstonCode/svn-scm/commit/85c07e4))
+
+## [1.54.2](https://github.com/JohnstonCode/svn-scm/compare/v1.54.1...v1.54.2) (2019-06-27)
+
+
+### Bug Fixes
+
+* Fixed prompts for login constantly (close [#552](https://github.com/JohnstonCode/svn-scm/issues/552)) ([#620](https://github.com/JohnstonCode/svn-scm/issues/620)) ([7b733ac](https://github.com/JohnstonCode/svn-scm/commit/7b733ac))
+
+## [1.54.1](https://github.com/JohnstonCode/svn-scm/compare/v1.54.0...v1.54.1) (2019-06-17)
+
+
+### Bug Fixes
+
+* Fixed config scope for svn.path (close [#616](https://github.com/JohnstonCode/svn-scm/issues/616)) ([#614](https://github.com/JohnstonCode/svn-scm/issues/614)) ([7feabc2](https://github.com/JohnstonCode/svn-scm/commit/7feabc2))
+
 # [1.54.0](https://github.com/JohnstonCode/svn-scm/compare/v1.53.0...v1.54.0) (2019-06-14)
 
 
