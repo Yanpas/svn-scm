@@ -15,7 +15,7 @@ import { configuration } from "../helpers/configuration";
 import { ResourceKind } from "../pathNormalizer";
 import { IRemoteRepository } from "../remoteRepository";
 import { SvnRI } from "../svnRI";
-import { dumpSvnFile } from "../tempFiles";
+import { createTempSvnRevisionFile } from "../tempFiles";
 
 export enum LogTreeItemKind {
   Repo = 1,
@@ -158,6 +158,17 @@ export async function checkIfFile(
   return true;
 }
 
+export function getLimit(): number {
+  const limit = Number.parseInt(
+    configuration.get<string>("log.length") || "50",
+    10
+  );
+  if (isNaN(limit) || limit <= 0) {
+    throw new Error("Invalid log.length setting value");
+  }
+  return limit;
+}
+
 /// @note: cached.svnTarget should be valid
 export async function fetchMore(cached: ICachedLog, isFile: boolean) {
   let rfrom = cached.persisted.commitFrom;
@@ -193,17 +204,6 @@ export async function fetchMore(cached: ICachedLog, isFile: boolean) {
     cached.isComplete = true;
   }
   entries.push(...moreCommits);
-}
-
-export function getLimit(): number {
-  const limit = Number.parseInt(
-    configuration.get<string>("log.length") || "50",
-    10
-  );
-  if (isNaN(limit) || limit <= 0) {
-    throw new Error("Invalid log.length setting value");
-  }
-  return limit;
 }
 
 const gravatarCache: Map<string, Uri> = new Map();
@@ -247,12 +247,11 @@ export function getCommitIcon(
 }
 
 export function getCommitLabel(commit: ISvnLogEntry): string {
-  let fstLine = commit.msg.split(/\r?\n/, 1)[0];
-  const maxChars = 40;
-  if (fstLine.length > maxChars) {
-    fstLine = `${fstLine.substr(0, maxChars)}...`;
+  let commitMsg = "<blank>";
+  if (commit.msg) {
+    commitMsg = commit.msg.split(/\r?\n/, 1)[0];
   }
-  return fstLine;
+  return `${commitMsg} • r${commit.revision}`;
 }
 
 export function getCommitDescription(commit: ISvnLogEntry): string {
@@ -306,22 +305,23 @@ async function downloadFile(
     window.showErrorMessage("Failed to open path");
     throw e;
   }
-  return dumpSvnFile(arg, revision, out);
+  return createTempSvnRevisionFile(arg, revision, out);
 }
 
 export async function openDiff(
   repo: IRemoteRepository,
-  arg: Uri,
+  arg1: Uri,
   r1: string,
   r2: string,
-  argRevision: string|undefined
+  arg2?: Uri,
+  argRevision?: string
 ) {
-  const uri1 = await downloadFile(repo, arg, r1, argRevision);
-  const uri2 = await downloadFile(repo, arg, r2, argRevision);
+  const uri1 = await downloadFile(repo, arg1, r1, argRevision);
+  const uri2 = await downloadFile(repo, arg2 || arg1, r2, argRevision);
   const opts: TextDocumentShowOptions = {
     preview: true
   };
-  const title = `${path.basename(arg.path)} (${r1} : ${r2})`;
+  const title = `${path.basename(arg1.path)} (${r1} : ${r2})`;
   return commands.executeCommand<void>("vscode.diff", uri1, uri2, title, opts);
 }
 
@@ -331,7 +331,19 @@ export async function openFileRemote(
   against: string,
   argRevision: string|undefined
 ) {
-  const localUri = await downloadFile(repo, arg, against, argRevision);
+  let out;
+  try {
+    out = await repo.show({
+      path: arg,
+      rscKind: ResourceKind.RemoteFull,
+      revision: argRevision,
+      isLocal: false
+    }, against);
+  } catch {
+    window.showErrorMessage("Failed to open path");
+    return;
+  }
+  const localUri = await createTempSvnRevisionFile(arg, against, out);
   const opts: TextDocumentShowOptions = {
     preview: true
   };

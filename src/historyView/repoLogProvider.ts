@@ -12,13 +12,13 @@ import {
   workspace
 } from "vscode";
 import {
-  IModelChangeEvent,
+  RepositoryChangeEvent,
   ISvnLogEntry,
   ISvnLogEntryPath
 } from "../common/types";
 import { exists } from "../fs";
-import { Model } from "../model";
 import { ResourceKind } from "../pathNormalizer";
+import { SourceControlManager } from "../source_control_manager";
 import { IRemoteRepository } from "../remoteRepository";
 import { Repository } from "../repository";
 import { dispose, unwrap } from "../util";
@@ -83,7 +83,7 @@ export class RepoLogProvider
     return this.getCached(item.parent);
   }
 
-  constructor(private model: Model) {
+  constructor(private sourceControlManager: SourceControlManager) {
     this.refresh();
     this._dispose.push(
       commands.registerCommand(
@@ -121,10 +121,12 @@ export class RepoLogProvider
     this._dispose.push(
       commands.registerCommand("svn.repolog.refresh", this.refresh, this)
     );
-    this.model.onDidChangeRepository(async (_e: IModelChangeEvent) => {
-      return this.refresh();
-      // TODO refresh only required repo, need to pass element === getChildren()
-    });
+    this.sourceControlManager.onDidChangeRepository(
+      async (_e: RepositoryChangeEvent) => {
+        return this.refresh();
+        // TODO refresh only required repo, need to pass element === getChildren()
+      }
+    );
   }
 
   public dispose() {
@@ -153,12 +155,12 @@ export class RepoLogProvider
       window.showWarningMessage("This path is already added");
       return;
     }
-    const repo = this.model.getRepository(repoLike);
+    const repo = this.sourceControlManager.getRepository(repoLike);
     if (repo === null) {
       try {
         let uri: Uri;
         if (repoLike.startsWith("^")) {
-          const wsrepo = this.model.getRepository(
+          const wsrepo = this.sourceControlManager.getRepository(
             unwrap(workspace.workspaceFolders)[0].uri
           );
           if (!wsrepo) {
@@ -172,7 +174,9 @@ export class RepoLogProvider
         if (rev !== "HEAD" && isNaN(parseInt(rev, 10))) {
           throw new Error("erroneous revision");
         }
-        const remRepo = await this.model.getRemoteRepository(uri);
+        const remRepo = await this.sourceControlManager.getRemoteRepository(
+          uri
+        );
         item.repo = remRepo;
         item.svnTarget = uri;
       } catch (e) {
@@ -304,6 +308,7 @@ export class RepoLogProvider
       ri.remoteFullPath,
       prevRev.revision,
       parent.revision,
+      undefined,
       parent.revision
     );
   }
@@ -316,7 +321,7 @@ export class RepoLogProvider
           this.logCache.delete(k);
         }
       }
-      for (const repo of this.model.repositories) {
+      for (const repo of this.sourceControlManager.repositories) {
         const remoteRoot = repo.branchRoot;
         const repoUrl = remoteRoot.toString(true);
         let persisted: ICachedLog["persisted"] = {

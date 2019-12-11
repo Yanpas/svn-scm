@@ -55,6 +55,24 @@ export interface ISvnInfo {
   commit: ISvnCommit;
 }
 
+export interface ISvnPath {
+  props: PropStatus;
+  kind: SvnKindType;
+  item: Status;
+  _: string;
+}
+
+export interface ISvnPathChange {
+  oldPath: Uri;
+  newPath: Uri;
+  oldRevision: string;
+  newRevision: string;
+  props: PropStatus;
+  kind: SvnKindType;
+  item: Status;
+  repo: Uri;
+}
+
 export interface ISvnListItem {
   kind: SvnKindType;
   name: string;
@@ -67,7 +85,7 @@ export enum SvnKindType {
   DIR = "dir"
 }
 
-export interface IModelChangeEvent {
+export interface RepositoryChangeEvent {
   repository: Repository;
   uri: Uri;
 }
@@ -90,6 +108,7 @@ export enum Operation {
   Add = "Add",
   AddChangelist = "AddChangelist",
   Blame = "Blame",
+  Changes = "Changes",
   CleanUp = "CleanUp",
   Commit = "Commit",
   CurrentBranch = "CurrentBranch",
@@ -152,6 +171,7 @@ export interface IEntry {
   reposStatus?: {
     props: string;
     item: string;
+    lock?: object;
   };
 }
 
@@ -262,6 +282,8 @@ export interface ISvnLogEntryPath {
   action: string;
   /** "file" | "dir" e.g. */
   kind: string;
+  copyfromPath?: string;
+  copyfromRev?: string;
 }
 
 /** produced by svn log */
@@ -281,4 +303,11 @@ export enum SvnDepth {
   files = "the target and any immediate file children thereof",
   immediates = "the target and any immediate children thereof",
   infinity = "the target and all of its descendants—full recursion"
+}
+
+export interface LineChange {
+  readonly originalStartLineNumber: number;
+  readonly originalEndLineNumber: number;
+  readonly modifiedStartLineNumber: number;
+  readonly modifiedEndLineNumber: number;
 }

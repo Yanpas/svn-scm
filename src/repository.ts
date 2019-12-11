@@ -24,7 +24,8 @@ import {
   RepositoryState,
   Status,
   SvnDepth,
-  SvnUriAction
+  SvnUriAction,
+  ISvnPathChange
 } from "./common/types";
 import { debounce, globalSequentialize, memoize, throttle } from "./decorators";
 import { exists } from "./fs";
@@ -359,9 +360,9 @@ export class Repository implements IRemoteRepository {
     }
 
     if (actionForDeletedFiles === "remove") {
-      return await this.removeFiles(uris.map(uri => uri.fsPath), false);
+      return this.removeFiles(uris.map(uri => uri.fsPath), false);
     } else if (actionForDeletedFiles === "prompt") {
-      return await commands.executeCommand("svn.promptRemove", ...uris);
+      return commands.executeCommand("svn.promptRemove", ...uris);
     }
 
     return;
@@ -452,7 +453,7 @@ export class Repository implements IRemoteRepository {
 
     const statuses =
       (await this.retryRun(async () => {
-        return await this.repository.getStatus({
+        return this.repository.getStatus({
           includeIgnored: true,
           includeExternals: combineExternal,
           checkRemoteChanges
@@ -891,6 +892,10 @@ export class Repository implements IRemoteRepository {
     return this.run(Operation.Info, () =>
       this.repository.getInfo(path, revision, true)
     );
+  }
+
+  public async getChanges(): Promise<ISvnPathChange[]> {
+    return this.run(Operation.Changes, () => this.repository.getChanges());
   }
 
   public async finishCheckout() {
