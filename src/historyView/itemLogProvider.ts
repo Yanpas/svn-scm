@@ -113,13 +113,24 @@ export class ItemLogProvider
   public async openFileRemoteCmd(element: ILogTreeItem) {
     const commit = element.data as ISvnLogEntry;
     const item = unwrap(this.currentItem);
-    return openFileRemote(item.repo, item.svnTarget, commit.revision, undefined);
+    return openFileRemote(
+      item.repo,
+      item.svnTarget,
+      commit.revision,
+      undefined
+    );
   }
 
   public async openDiffBaseCmd(element: ILogTreeItem) {
     const commit = element.data as ISvnLogEntry;
     const item = unwrap(this.currentItem);
-    return openDiff(item.repo, item.svnTarget, commit.revision, "BASE", undefined);
+    return openDiff(
+      item.repo,
+      item.svnTarget,
+      commit.revision,
+      "BASE",
+      undefined
+    );
   }
 
   public async openDiffCmd(element: ILogTreeItem) {
@@ -136,7 +147,13 @@ export class ItemLogProvider
       return;
     }
     const prevRev = item.entries[pos + 1].revision;
-    return openDiff(item.repo, item.svnTarget, prevRev, commit.revision, undefined);
+    return openDiff(
+      item.repo,
+      item.svnTarget,
+      prevRev,
+      commit.revision,
+      undefined
+    );
   }
 
   public async editorChanged(te?: TextEditor) {

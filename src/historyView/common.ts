@@ -275,7 +275,7 @@ async function downloadFile(
   repo: IRemoteRepository,
   arg: Uri,
   revision: string,
-  argRevision: string|undefined
+  argRevision: string | undefined
 ): Promise<Uri> {
   if (revision === "BASE") {
     const nm = repo.getPathNormalizer();
@@ -329,16 +329,19 @@ export async function openFileRemote(
   repo: IRemoteRepository,
   arg: Uri,
   against: string,
-  argRevision: string|undefined
+  argRevision: string | undefined
 ) {
   let out;
   try {
-    out = await repo.show({
-      path: arg,
-      rscKind: ResourceKind.RemoteFull,
-      revision: argRevision,
-      isLocal: false
-    }, against);
+    out = await repo.show(
+      {
+        path: arg,
+        rscKind: ResourceKind.RemoteFull,
+        revision: argRevision,
+        isLocal: false
+      },
+      against
+    );
   } catch {
     window.showErrorMessage("Failed to open path");
     return;

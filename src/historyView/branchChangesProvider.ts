@@ -93,7 +93,12 @@ export class BranchChangesProvider
       );
     }
     if (element.item === Status.ADDED) {
-      return openFileRemote(repo, element.newPath, element.newRevision);
+      return openFileRemote(
+        repo,
+        element.newPath,
+        element.newRevision,
+        undefined
+      );
     }
   }
 }

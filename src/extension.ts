@@ -55,7 +55,7 @@ async function init(
 
   disposables.push(
     commands.registerCommand("svn.showBlame", () => {
-      blameCurrentFile(model);
+      blameCurrentFile(sourceControlManager);
     })
   );
   const branchChangesProvider = new BranchChangesProvider(sourceControlManager);

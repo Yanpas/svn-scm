@@ -11,16 +11,16 @@ import {
 } from "vscode";
 import { ISvnBlameEntry } from "../common/types";
 import { configuration } from "../helpers/configuration";
-import { Model } from "../model";
 import { ResourceKind } from "../pathNormalizer";
 import { Repository } from "../repository";
 import { SvnRI } from "../svnRI";
 import { getGravatarIcon } from "./common";
+import { SourceControlManager } from "../source_control_manager";
 
 let prevGutter: GutterBlame | undefined;
 let editorChanged: Disposable | undefined;
 
-export function blameCurrentFile(model: Model) {
+export function blameCurrentFile(model: SourceControlManager) {
   if (!editorChanged) {
     editorChanged = window.onDidChangeActiveTextEditor(() => {
       if (prevGutter) {
@@ -194,7 +194,7 @@ export class GutterBlame implements Disposable {
         distSS;
     }
     const decor = window.createTextEditorDecorationType({
-      gutterIconPath: icon,
+      gutterIconPath: icon instanceof Uri ? icon : undefined,
       before: {
         contentText,
         backgroundColor: new ThemeColor("editor.selectionHighlightBackground"),
